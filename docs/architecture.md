@@ -1,8 +1,9 @@
 # Proposed Hybrid Key-Exchange Architecture
 
-> **Status: proposed design only.** This document describes the intended
-> workflow for later implementation. It is not an implemented or deployed
-> system, and the current repository does not establish secure session keys.
+> **Status: mixed implementation and proposal.** The classical X25519 and
+> HKDF baseline described below is implemented and tested. ML-KEM-768, the
+> hybrid combiner, authentication, and deployment remain planned. This is not
+> an implemented or deployed production system.
 
 ## Parties and responsibilities
 
@@ -43,6 +44,40 @@ design is reviewed. Public values must be authenticated and bound to the
 intended peers and context; simply concatenating values is not a complete
 protocol.
 
+## Implemented Day 2 classical baseline
+
+The repository now contains a runnable educational flow for Service A and
+Service B:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Service A
+    participant B as Service B
+
+    Note over A,B: Implemented and tested classical baseline
+    A->>A: Generate X25519 private/public key pair
+    B->>B: Generate X25519 private/public key pair
+    A->>B: Send A public key
+    B->>A: Send B public key
+    A->>A: X25519(A private, B public) = shared secret A
+    B->>B: X25519(B private, A public) = shared secret B
+    A->>A: HKDF-SHA-256(shared secret A, salt, info)
+    B->>B: HKDF-SHA-256(shared secret B, salt, info)
+    A-->>B: Verify session keys match
+```
+
+`src/classical_ecdh.py` implements key-pair generation, typed public-key
+exchange, X25519 shared-secret derivation, and 32-byte HKDF-SHA-256 session-key
+derivation. `scripts/demo_ecdh.py` exercises both simulated services without
+printing key material, and `tests/test_ecdh.py` covers agreement, context
+separation, reproducibility, independent exchanges, and invalid inputs.
+
+X25519 and HKDF are implemented for this classical baseline. The demonstration
+does not authenticate either service; certificates or an authenticated TLS or
+application protocol are still required for protection against active
+man-in-the-middle attacks.
+
 ## Cryptographic roles
 
 ### X25519
@@ -67,15 +102,16 @@ validation, or replace the symmetric authenticated encryption used for
 application data. Those responsibilities remain part of the surrounding
 protocol and zero-trust control plane.
 
-## Future HKDF combiner
+## Future hybrid HKDF combiner
 
-After both components are successfully authenticated and computed, the future
-implementation will combine the two independent secrets with a domain-separated
-HKDF construction. The design should make the protocol context explicit, for
-example by including a versioned label, both public-key transcripts, peer
-identities, and any negotiated parameters in `info`. The exact construction
-must be specified and reviewed before implementation; this Day 1 repository
-deliberately does not implement it.
+Day 2 currently derives a session key from the X25519 shared secret alone.
+After ML-KEM-768 is implemented and both components are successfully
+authenticated and computed, a future milestone will combine the independent
+X25519 and ML-KEM shared secrets with a domain-separated HKDF construction.
+The design should make the protocol context explicit, for example by including
+a versioned label, both public-key transcripts, peer identities, and any
+negotiated parameters in `info`. The hybrid construction must be specified and
+reviewed before implementation.
 
 The derived session key could later feed an AEAD such as AES-GCM or
 ChaCha20-Poly1305 for application data. Nonces, rekeying, key lifetime,
@@ -95,9 +131,10 @@ The hybrid key exchange must not bypass those controls. A successful
 cryptographic handshake is not an authorization decision, and a policy
 decision must not expose private keys or shared secrets to logs or telemetry.
 
-## Implementation boundary for Day 1
+## Implementation boundary for Day 2
 
-Day 1 verifies that the local Python environment exposes X25519 and ML-KEM-768
-through the selected `cryptography` package. The source modules and tests are
-placeholders for later days. No production protocol, benchmark, certificate,
-Kubernetes deployment, or claim of quantum-proof security is made here.
+Day 1 verified that the local Python environment exposes X25519 and ML-KEM-768
+through the selected `cryptography` package. Day 2 implements and tests only
+the classical X25519/HKDF baseline. ML-KEM-768, the hybrid combiner,
+certificates, benchmarks, Kubernetes deployment, and any claim of
+post-quantum security remain out of scope.

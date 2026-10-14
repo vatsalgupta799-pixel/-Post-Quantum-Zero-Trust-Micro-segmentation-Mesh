@@ -37,12 +37,60 @@ The actual key exchange, HKDF combiner, symmetric encryption, benchmarks,
 certificates, Kubernetes, Envoy, OPA, Vault, and service-mesh integration are
 future work.
 
+## Day 2 — Classical X25519 Key Exchange
+
+Day 2 implements the classical baseline between two simulated services. Each
+service generates an X25519 private key and derives a matching public key. The
+services exchange only their public keys; each then uses its own private key
+and the peer's public key to independently derive the same 32-byte ECDH
+shared secret.
+
+Private keys must remain secret and never leave their service. Public keys are
+safe to send as handshake data, but exchanging public keys alone does not
+authenticate either service. The wider project will need certificate-based
+authentication and an appropriate TLS or protocol integration to address
+man-in-the-middle risks.
+
+The shared secret is input to HKDF-SHA-256 rather than being used directly as
+an application key. The implementation uses the context
+`post-quantum-zero-trust-mesh/classical-ecdh/v1` and accepts a public,
+per-session salt. In the demonstration, the salt is generated with a secure
+random generator and both simulated services use the same value. The salt is
+not a password or a substitute for authentication.
+
+Run the demonstration from the project root:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python scripts\demo_ecdh.py
+```
+
+On Linux/macOS, use `source .venv/bin/activate` before running the same Python
+script. If activation is unavailable, invoke the environment interpreter
+directly with `.\.venv\Scripts\python.exe scripts\demo_ecdh.py` on Windows or
+`./.venv/bin/python scripts/demo_ecdh.py` on Linux/macOS.
+
+Run the automated tests with:
+
+```powershell
+python -m pytest -v
+```
+
+The expected demonstration reports successful key-pair generation, public-key
+exchange, matching shared secrets, matching HKDF session keys, and a 32-byte
+session key. It does not print private keys, shared secrets, or session keys.
+
+This is an educational classical baseline, not a production-ready secure
+channel and not a post-quantum implementation. ML-KEM-768, the hybrid
+combiner, certificates, and service-mesh integration remain planned for later
+milestones.
+
 ## Planned technology stack
 
 - Python 3.13 for this development environment;
 - `cryptography` for X25519 and ML-KEM-768 API support;
 - HKDF for the future hybrid key-derivation step;
-- pytest for later implementation tests (not required for Day 1 checks);
+- pytest for the Day 2 automated tests;
 - Kubernetes NetworkPolicies, certificate authentication, OPA, Envoy,
   monitoring, and secrets management in the wider capstone project.
 
@@ -69,7 +117,7 @@ the Day 1 requirements by default.
 hybrid-key-exchange/
 ├── src/
 │   ├── __init__.py
-│   ├── classical_ecdh.py       # Day 2 placeholder
+│   ├── classical_ecdh.py       # Day 2 X25519 and HKDF implementation
 │   ├── pqc_mlkem.py            # Future ML-KEM wrapper placeholder
 │   ├── hybrid_exchange.py      # Future hybrid combiner placeholder
 │   └── benchmark.py            # Future benchmark placeholder
@@ -78,7 +126,8 @@ hybrid-key-exchange/
 │   ├── test_mlkem.py
 │   └── test_hybrid.py
 ├── scripts/
-│   └── check_environment.py
+│   ├── check_environment.py
+│   └── demo_ecdh.py
 ├── docs/
 │   └── architecture.md
 ├── results/
@@ -197,24 +246,25 @@ version and enabled mechanism list if this route is needed.
 
 ## Current progress and future milestones
 
-**Current milestone: Day 1 — Environment and Repository Setup.** The project
-scaffold and capability checks are complete on the verified machine.
+**Completed milestones: Day 1 — Environment and Repository Setup; Day 2 —
+Classical X25519 Key Exchange.** The X25519/HKDF baseline, demonstration, and
+automated tests are complete on the verified machine.
 
 Planned next steps:
 
-1. Day 2: implement and test a standalone X25519 exchange.
-2. Later: add ML-KEM-768 encapsulation/decapsulation tests.
-3. Later: define the protocol transcript and HKDF-based hybrid combiner.
-4. Later: add authenticated symmetric encryption, benchmarks, and integration
+1. Day 3: add ML-KEM-768 encapsulation/decapsulation tests.
+2. Later: define the protocol transcript and HKDF-based hybrid combiner.
+3. Later: add authenticated symmetric encryption, benchmarks, and integration
    boundaries for the wider zero-trust project.
 
 ## Limitations
 
-This repository does not yet implement hybrid key exchange, secure session-key
-establishment, post-quantum mTLS, Kubernetes policy, or service-mesh
-deployment. The Day 1 checks only establish that the selected APIs are
-available. `cryptography`'s low-level asymmetric APIs require careful protocol
-design, validation, key lifecycle handling, and review before production use.
+This repository does not yet implement the X25519-plus-ML-KEM hybrid exchange,
+post-quantum mTLS, Kubernetes policy, or service-mesh deployment. Day 2
+establishes a classical shared secret and HKDF-derived session key only; it
+does not authenticate services or provide post-quantum security.
+`cryptography`'s low-level asymmetric APIs require careful protocol design,
+validation, key lifecycle handling, and review before production use.
 
 ## Official references
 
