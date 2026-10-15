@@ -7,11 +7,10 @@ while evaluating performance and authentication overhead.
 ## Day 1 — Environment and Repository Setup
 
 This repository is the Task 4 workspace for a college capstone project on a
-Post-Quantum Zero-Trust Microsegmentation Mesh. The planned cryptographic
-demonstration combines classical X25519 key exchange with the post-quantum
-ML-KEM-768 key-encapsulation mechanism. Day 1 establishes a reproducible
-Python environment and verifies library support; it does not implement the
-hybrid protocol.
+Post-Quantum Zero-Trust Microsegmentation Mesh. The project now contains
+independent classical X25519 and post-quantum ML-KEM-768 demonstrations. A
+future milestone will combine those established secrets through a reviewed
+hybrid key-derivation design; that hybrid protocol is not implemented here.
 
 ## Problem statement and motivation
 
@@ -33,9 +32,9 @@ Day 1 covers:
 - ML-KEM-768 availability checking;
 - the proposed architecture and a recovery plan for unsupported platforms.
 
-The actual key exchange, HKDF combiner, symmetric encryption, benchmarks,
-certificates, Kubernetes, Envoy, OPA, Vault, and service-mesh integration are
-future work.
+The hybrid combiner, symmetric encryption, benchmarks, certificates, Envoy,
+OPA, Vault, and service-mesh integration are future work. The independent
+classical and post-quantum key-establishment components are documented below.
 
 ## Day 2 — Classical X25519 Key Exchange
 
@@ -81,16 +80,61 @@ exchange, matching shared secrets, matching HKDF session keys, and a 32-byte
 session key. It does not print private keys, shared secrets, or session keys.
 
 This is an educational classical baseline, not a production-ready secure
-channel and not a post-quantum implementation. ML-KEM-768, the hybrid
-combiner, certificates, and service-mesh integration remain planned for later
+channel. ML-KEM-768 is implemented independently in the Day 3 component; the
+hybrid combiner, certificates, and service-mesh integration remain later
 milestones.
+
+## Day 3 — Post-Quantum ML-KEM-768
+
+Post-quantum cryptography uses algorithms designed to remain useful even
+against future cryptanalysts with large quantum computers. ML-KEM-768 is the
+NIST FIPS 203 key-encapsulation mechanism (KEM) used here for an independent,
+educational key-establishment flow. It is not an encryption channel or an
+authentication protocol by itself.
+
+The verified implementation uses `cryptography` 50.0.2 (within the project's
+`cryptography>=47.0.0,<51.0.0` requirement) and its standard
+`MLKEM768PrivateKey` and `MLKEM768PublicKey` APIs. No `liboqs-python` package
+or native dependency is needed on this machine.
+
+In a KEM exchange, Service B first generates an ML-KEM-768 private/public key
+pair and makes only its public key available to Service A. Service A uses that
+public key to encapsulate, producing a ciphertext and a new shared secret.
+Service A transfers the ciphertext to Service B; Service B uses its private
+key to decapsulate and recover the matching shared secret. Private keys and
+raw shared-secret bytes are never printed by the module or demonstration.
+
+Run the verified demonstration from the project root:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\demo_mlkem.py
+```
+
+Run its focused tests, or the entire available test suite:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -v tests\test_mlkem.py
+.\.venv\Scripts\python.exe -m pytest -v
+```
+
+The normal demonstration reports successful availability, key generation,
+public-key availability, encapsulation, ciphertext transfer, decapsulation,
+matching secrets, and the 32-byte secret length without displaying sensitive
+values. The tests also verify key types, independent exchanges, invalid object
+types, malformed ciphertext length, the library's implicit-rejection behavior
+for a same-length altered ciphertext, and sanitized demonstration output.
+
+This is a standalone KEM demonstration, not post-quantum TLS or mTLS. It does
+not authenticate Service A or Service B, bind a transcript, authorize a
+connection, or combine ML-KEM with X25519. Day 4 will define and review a
+domain-separated HKDF-based hybrid derivation before implementing it.
 
 ## Planned technology stack
 
 - Python 3.13 for this development environment;
 - `cryptography` for X25519 and ML-KEM-768 API support;
 - HKDF for the future hybrid key-derivation step;
-- pytest for the Day 2 automated tests;
+- pytest for the Day 2 and Day 3 automated tests;
 - Kubernetes NetworkPolicies, certificate authentication, OPA, Envoy,
   monitoring, and secrets management in the wider capstone project.
 
@@ -118,16 +162,17 @@ hybrid-key-exchange/
 ├── src/
 │   ├── __init__.py
 │   ├── classical_ecdh.py       # Day 2 X25519 and HKDF implementation
-│   ├── pqc_mlkem.py            # Future ML-KEM wrapper placeholder
+│   ├── pqc_mlkem.py            # Day 3 standalone ML-KEM-768 wrapper
 │   ├── hybrid_exchange.py      # Future hybrid combiner placeholder
 │   └── benchmark.py            # Future benchmark placeholder
 ├── tests/
 │   ├── test_ecdh.py
-│   ├── test_mlkem.py
+│   ├── test_mlkem.py            # Day 3 ML-KEM-768 tests
 │   └── test_hybrid.py
 ├── scripts/
 │   ├── check_environment.py
-│   └── demo_ecdh.py
+│   ├── demo_ecdh.py
+│   └── demo_mlkem.py            # Day 3 ML-KEM-768 demonstration
 ├── docs/
 │   └── architecture.md
 ├── results/
@@ -247,22 +292,23 @@ version and enabled mechanism list if this route is needed.
 ## Current progress and future milestones
 
 **Completed milestones: Day 1 — Environment and Repository Setup; Day 2 —
-Classical X25519 Key Exchange.** The X25519/HKDF baseline, demonstration, and
-automated tests are complete on the verified machine.
+Classical X25519 Key Exchange; Day 3 — Post-Quantum ML-KEM-768.** The
+independent X25519/HKDF and ML-KEM-768 demonstrations and automated tests are
+complete on the verified machine.
 
 Planned next steps:
 
-1. Day 3: add ML-KEM-768 encapsulation/decapsulation tests.
-2. Later: define the protocol transcript and HKDF-based hybrid combiner.
-3. Later: add authenticated symmetric encryption, benchmarks, and integration
+1. Day 4: define the protocol transcript and HKDF-based hybrid combiner.
+2. Later: add authenticated symmetric encryption, benchmarks, and integration
    boundaries for the wider zero-trust project.
 
 ## Limitations
 
 This repository does not yet implement the X25519-plus-ML-KEM hybrid exchange,
-post-quantum mTLS, Kubernetes policy, or service-mesh deployment. Day 2
-establishes a classical shared secret and HKDF-derived session key only; it
-does not authenticate services or provide post-quantum security.
+post-quantum mTLS, certificate authentication, or service-mesh deployment.
+Days 2 and 3 independently establish classical and post-quantum shared
+secrets, but neither component authenticates services or provides a complete
+secure channel.
 `cryptography`'s low-level asymmetric APIs require careful protocol design,
 validation, key lifecycle handling, and review before production use.
 

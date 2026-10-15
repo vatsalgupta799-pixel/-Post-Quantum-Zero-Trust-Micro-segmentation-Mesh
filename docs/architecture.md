@@ -1,17 +1,18 @@
 # Proposed Hybrid Key-Exchange Architecture
 
-> **Status: mixed implementation and proposal.** The classical X25519 and
-> HKDF baseline described below is implemented and tested. ML-KEM-768, the
-> hybrid combiner, authentication, and deployment remain planned. This is not
-> an implemented or deployed production system.
+> **Status: mixed implementation and proposal.** The independent classical
+> X25519/HKDF and post-quantum ML-KEM-768 components described below are
+> implemented and tested. The hybrid combiner, authentication, and deployment
+> remain planned. This is not an implemented or deployed production system.
 
 ## Parties and responsibilities
 
-- **Service A** is the initiating workload. It will create an ephemeral
-  X25519 key pair and participate in the ML-KEM-768 encapsulation workflow.
-- **Service B** is the responding workload. It will create its ephemeral
-  X25519 key pair and publish or authenticate an ML-KEM-768 public key for
-  encapsulation.
+- **Service A** is the initiating workload. It uses Service B's ML-KEM-768
+  public key to encapsulate a shared secret and will later create an ephemeral
+  X25519 key pair for the hybrid protocol.
+- **Service B** is the responding workload. It generates an ML-KEM-768 key
+  pair, makes its public key available for encapsulation, and later will create
+  an ephemeral X25519 key pair for the hybrid protocol.
 - **The authenticated transport/control plane** is responsible for identity,
   authorization, replay protection, transcript binding, and policy checks. A
   KEM alone does not provide all of those properties.
@@ -78,6 +79,38 @@ does not authenticate either service; certificates or an authenticated TLS or
 application protocol are still required for protection against active
 man-in-the-middle attacks.
 
+## Implemented Day 3 ML-KEM-768 baseline
+
+The repository also contains an independent, tested ML-KEM-768 KEM flow. It
+uses the installed `cryptography` backend rather than reimplementing ML-KEM
+mathematics. Service B keeps its private key local; the public key and
+ciphertext are the only values made available to the other simulated service.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Service A
+    participant B as Service B
+
+    Note over A,B: Implemented and tested ML-KEM-768 baseline
+    B->>B: Generate ML-KEM-768 private/public key pair
+    B->>A: Make B public key available
+    A->>A: Encapsulate to B public key
+    Note over A: Receive ciphertext and shared secret A
+    A->>B: Send ciphertext
+    B->>B: Decapsulate with B private key
+    Note over B: Recover matching shared secret B
+    A-->>B: Verify shared secrets match
+```
+
+`src/pqc_mlkem.py` provides typed key generation, encapsulation, and
+decapsulation functions. `scripts/demo_mlkem.py` demonstrates the two-service
+flow without printing secret material, and `tests/test_mlkem.py` verifies
+agreement, independent exchanges, library-consistent malformed-input behavior,
+implicit rejection, and sanitized normal output. A same-length altered ML-KEM
+ciphertext can yield a replacement secret through implicit rejection; this
+behavior does not authenticate the ciphertext.
+
 ## Cryptographic roles
 
 ### X25519
@@ -105,9 +138,9 @@ protocol and zero-trust control plane.
 ## Future hybrid HKDF combiner
 
 Day 2 currently derives a session key from the X25519 shared secret alone.
-After ML-KEM-768 is implemented and both components are successfully
-authenticated and computed, a future milestone will combine the independent
-X25519 and ML-KEM shared secrets with a domain-separated HKDF construction.
+Although both independent components are now implemented, a future milestone
+will combine the X25519 and ML-KEM shared secrets with a domain-separated HKDF
+construction only after the protocol inputs and authentication are specified.
 The design should make the protocol context explicit, for example by including
 a versioned label, both public-key transcripts, peer identities, and any
 negotiated parameters in `info`. The hybrid construction must be specified and
@@ -131,10 +164,11 @@ The hybrid key exchange must not bypass those controls. A successful
 cryptographic handshake is not an authorization decision, and a policy
 decision must not expose private keys or shared secrets to logs or telemetry.
 
-## Implementation boundary for Day 2
+## Implementation boundary through Day 3
 
 Day 1 verified that the local Python environment exposes X25519 and ML-KEM-768
-through the selected `cryptography` package. Day 2 implements and tests only
-the classical X25519/HKDF baseline. ML-KEM-768, the hybrid combiner,
-certificates, benchmarks, Kubernetes deployment, and any claim of
-post-quantum security remain out of scope.
+through the selected `cryptography` package. Day 2 implements and tests the
+classical X25519/HKDF baseline, and Day 3 independently implements and tests
+the ML-KEM-768 baseline. The hybrid combiner, certificates, benchmarks,
+Kubernetes deployment, and any claim of post-quantum security remain out of
+scope.
