@@ -1,0 +1,43 @@
+# Task 3: Basic OPA Authorization Policies
+
+## Objective
+
+Install and configure Open Policy Agent (OPA) on Windows 11 and learn how to create authorization policies that determine whether a user or application is allowed to perform a specific action.
+
+The objective is to implement policy-based authorization as part of the Post-Quantum Zero-Trust Microsegmentation Mesh project.
+
+# What is OPA?
+
+Open Policy Agent (OPA) is an open-source policy engine that helps applications and systems make authorization decisions based on predefined rules.
+
+OPA uses a policy language called Rego to define and evaluate these rules.
+
+# For example:
+
+An administrator can access all permitted resources.
+A developer can read and modify application resources.
+An unauthorized user is denied access.
+
+OPA evaluates the request against the policy and returns a decision, such as allow: true or allow: false.
+
+# Why Are We Using OPA?
+
+In a Zero-Trust architecture, access should not be granted automatically. Every request must be evaluated against the applicable security rules.
+
+OPA helps implement this principle by providing centralized, policy-based authorization.
+
+# In this project, OPA can complement Kubernetes NetworkPolicies:
+
+Kubernetes NetworkPolicies: Control which workloads can communicate over the network.
+OPA authorization policies: Evaluate whether a request or action is permitted under defined rules.
+mTLS and PQC: Planned security components for workload authentication and secure communication.
+
+These technologies provide different security controls and can work together as part of the Zero-Trust architecture.
+
+# Environment
+Operating System: Windows 11
+Policy Engine: Open Policy Agent (OPA)
+Policy Language: Rego
+Interface: Windows Terminal / PowerShell
+Project: Post-Quantum Zero-Trust Microsegmentation Mesh
+Integration with Kubernetes: Planned for a later stage
