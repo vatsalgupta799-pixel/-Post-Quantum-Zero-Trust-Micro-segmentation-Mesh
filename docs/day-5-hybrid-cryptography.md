@@ -32,8 +32,27 @@ The ML-KEM-768 ciphertext observed in this environment was 1,088 bytes, and the 
 - Istio's configured mTLS does not automatically use ML-KEM through this Python prototype.
 - No performance benchmark has been conducted.
 
-## Next Steps
-1. Review hybrid key derivation and add explicit domain separation and context binding.
-2. Add tampering and failure-path tests.
-3. Benchmark hybrid key exchange against classical ECDH alone.
-4. Investigate a supported way to integrate post-quantum key establishment into the service communication layer.
+## Remaining Work
+1. Review the hybrid key derivation construction and add explicit domain separation and context binding.
+2. Expand failure-path tests and repeat benchmarks under controlled conditions.
+3. Investigate a supported way to integrate post-quantum key establishment into the service communication layer.
+4. Validate the complete Kubernetes service path and document the evidence and limitations.
+
+## Security Test and Performance Results
+
+### Security Tests
+Command: `python -m unittest discover -s tests -v`
+
+- 2 tests passed.
+- The hybrid exchange and authenticated-encryption demonstration succeeded.
+- AES-GCM rejected modified ciphertext with an authentication failure.
+
+### Local Microbenchmark
+Command: `python src/benchmark_hybrid.py`
+
+- Iterations per method: 30
+- Classical ECDH + HKDF median: 0.066 ms
+- Hybrid ECDH + ML-KEM-768 + HKDF median: 0.216 ms
+- Hybrid/classical median ratio: 3.29x
+
+These results are specific to the current Kali VM and software environment. The hybrid measurement includes ML-KEM key generation, encapsulation, and decapsulation; the classical measurement includes ECDH and HKDF. This is a prototype microbenchmark, not a production or end-to-end network latency measurement.
