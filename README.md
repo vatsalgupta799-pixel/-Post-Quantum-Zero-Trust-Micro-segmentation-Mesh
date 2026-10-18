@@ -184,16 +184,69 @@ sanitized output.
 This is an educational combiner requiring cryptographic review before any
 deployment. It does not authenticate either service, prevent a
 man-in-the-middle attack, implement TLS/mTLS, establish a network connection,
-or claim complete post-quantum security. Day 5 will measure the independently
-callable classical, ML-KEM, hybrid, and HKDF operations without adding network
-latency to the benchmark.
+or claim complete post-quantum security.
+
+## Day 5 — Performance Benchmarking
+
+Day 5 adds a reproducible, serial in-process benchmark for the three
+implemented flows:
+
+- X25519 plus HKDF-SHA-256;
+- ML-KEM-768 key establishment;
+- the existing hybrid X25519 plus ML-KEM-768 exchange.
+
+The runner records separate timings for isolated operations and complete
+exchanges, so the component rows are not added together or confused with the
+end-to-end local flow. Every benchmark starts with warm-up iterations, uses
+time.perf_counter_ns, verifies correctness outside the timed section, and
+retains raw samples alongside mean, median, sample standard deviation, minimum,
+maximum, and linearly interpolated 95th-percentile latency.
+
+Run the benchmark from the project root with the existing virtual environment:
+
+~~~powershell
+.\.venv\Scripts\python.exe scripts\benchmark.py --warmup 20 --iterations 500
+~~~
+
+The default is 20 warm-up and 500 measured iterations for each operation.
+Use smaller values only for a quick smoke check. The runner refuses to replace
+existing results unless --overwrite is supplied, so a meaningful historical run
+is not lost accidentally. You can also select another result directory and
+report path with --output-dir and --report-path.
+
+Run the focused benchmark checks, or all project tests:
+
+~~~powershell
+.\.venv\Scripts\python.exe -m pytest -v tests\test_benchmark.py
+.\.venv\Scripts\python.exe -m pytest -v
+~~~
+
+Generate charts from the measured summary CSV:
+
+~~~powershell
+.\.venv\Scripts\python.exe scripts\plot_benchmarks.py
+~~~
+
+Both scripts use only actual results from the current machine. The benchmark
+stores raw samples in results/benchmark_results.csv, summary statistics and
+public payload sizes in results/benchmark_summary.csv, and non-sensitive
+environment metadata in results/benchmark_environment.json. The chart script
+creates results/latency_comparison.png and results/payload_size_comparison.png.
+The measured analysis is written to docs/benchmark_report.md.
+
+The payload figures describe the cryptographic public keys and ciphertexts
+that the in-memory handshake would send; they are not total TLS handshake
+sizes or observed network traffic. These local measurements include Python and
+installed-library overhead but do not measure network latency, TLS, Envoy,
+Kubernetes, certificates, or authentication.
 
 ## Planned technology stack
 
 - Python 3.13 for this development environment;
 - `cryptography` for X25519 and ML-KEM-768 API support;
-- HKDF for the future hybrid key-derivation step;
-- pytest for the Day 2, Day 3, and Day 4 automated tests;
+- HKDF for the implemented classical and hybrid session-key derivations;
+- pytest for the Day 2 through Day 5 automated tests;
+- Matplotlib for Day 5 charts generated from the measured CSV;
 - Kubernetes NetworkPolicies, certificate authentication, OPA, Envoy,
   monitoring, and secrets management in the wider capstone project.
 
@@ -223,18 +276,22 @@ hybrid-key-exchange/
 │   ├── classical_ecdh.py       # Day 2 X25519 and HKDF implementation
 │   ├── pqc_mlkem.py            # Day 3 standalone ML-KEM-768 wrapper
 │   ├── hybrid_exchange.py      # Day 4 hybrid exchange and HKDF combiner
-│   └── benchmark.py            # Future benchmark placeholder
+│   └── benchmark.py            # Day 5 reusable benchmark utilities
 ├── tests/
 │   ├── test_ecdh.py
 │   ├── test_mlkem.py            # Day 3 ML-KEM-768 tests
-│   └── test_hybrid.py           # Day 4 hybrid exchange tests
+│   ├── test_hybrid.py           # Day 4 hybrid exchange tests
+│   └── test_benchmark.py        # Day 5 benchmark checks
 ├── scripts/
 │   ├── check_environment.py
 │   ├── demo_ecdh.py
 │   ├── demo_mlkem.py            # Day 3 ML-KEM-768 demonstration
-│   └── demo_hybrid.py           # Day 4 hybrid demonstration
+│   ├── demo_hybrid.py           # Day 4 hybrid demonstration
+│   ├── benchmark.py             # Day 5 measurement runner
+│   └── plot_benchmarks.py       # Day 5 CSV chart generator
 ├── docs/
-│   └── architecture.md
+│   ├── architecture.md
+│   └── benchmark_report.md      # Generated from an actual benchmark run
 ├── results/
 │   └── .gitkeep
 ├── .gitignore
@@ -353,14 +410,17 @@ version and enabled mechanism list if this route is needed.
 
 **Completed milestones: Day 1 — Environment and Repository Setup; Day 2 —
 Classical X25519 Key Exchange; Day 3 — Post-Quantum ML-KEM-768; Day 4 — Hybrid
-X25519 + ML-KEM-768 Key Establishment.** The independent and hybrid
-demonstrations and automated tests are complete on the verified machine.
+X25519 + ML-KEM-768 Key Establishment; Day 5 — Performance Benchmarking.**
+The repository includes actual 500-iteration local benchmark artifacts,
+charts, an analysis report, and automated benchmark checks for the verified
+machine.
 
 Planned next steps:
 
-1. Day 5: benchmark classical, post-quantum, hybrid, and HKDF operations.
-2. Later: add authenticated symmetric encryption and integration
-   boundaries for the wider zero-trust project.
+1. Add authenticated symmetric encryption and integration boundaries for the
+   wider zero-trust project.
+2. Measure the prototype inside an authenticated network or service-mesh
+   integration without confusing that work with these local timings.
 
 ## Limitations
 

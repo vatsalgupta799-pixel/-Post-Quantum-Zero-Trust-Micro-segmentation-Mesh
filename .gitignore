@@ -29,6 +29,12 @@ dist/
 results/*.json
 results/*.csv
 results/*.txt
+results/*.png
+!results/benchmark_results.csv
+!results/benchmark_summary.csv
+!results/benchmark_environment.json
+!results/latency_comparison.png
+!results/payload_size_comparison.png
 
 # Editor and operating-system files
 .idea/

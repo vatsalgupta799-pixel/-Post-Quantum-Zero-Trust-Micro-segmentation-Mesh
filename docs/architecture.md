@@ -197,11 +197,44 @@ The hybrid key exchange must not bypass those controls. A successful
 cryptographic handshake is not an authorization decision, and a policy
 decision must not expose private keys or shared secrets to logs or telemetry.
 
-## Implementation boundary through Day 4
+## Implemented Day 5 benchmarking boundary
+
+Day 5 measures the existing educational implementations without modifying
+their cryptographic behavior. The benchmark uses a serial local process and
+time.perf_counter_ns, performs warm-up iterations outside the recorded data,
+and validates each flow before it starts timing.
+
+The results distinguish isolated operations from complete exchanges:
+
+- the classical complete exchange creates two X25519 key pairs, derives both
+  ECDH secrets, and derives both HKDF session keys;
+- the ML-KEM complete exchange creates a new ML-KEM-768 pair, encapsulates,
+  and decapsulates;
+- the hybrid complete exchange calls perform_hybrid_exchange, including its
+  existing key generation, transcript construction, component agreement
+  checks, and hybrid HKDF derivations.
+
+The individual operation rows are intentionally not added together because
+they overlap with the complete-exchange scope. Public payload accounting uses
+the actual raw serialization sizes: two X25519 public keys for the classical
+flow, an ML-KEM public key plus ciphertext for the KEM flow, and all four
+public values for the hybrid flow. These are simulated cryptographic payload
+sizes, not measured network traffic or total TLS handshakes.
+
+The benchmark stores raw timing samples, summary statistics, public-size
+metadata, and environment metadata in the results directory. It generates
+separate latency and payload charts from the summary CSV, and writes a
+measurement-specific report to docs/benchmark_report.md. No private key,
+shared secret, or session key is written to any artifact.
+
+## Implementation boundary through Day 5
 
 Day 1 verified that the local Python environment exposes X25519 and ML-KEM-768
 through the selected `cryptography` package. Day 2 implements and tests the
 classical X25519/HKDF baseline, Day 3 independently implements and tests the
-ML-KEM-768 baseline, and Day 4 implements an educational hybrid combiner.
-Certificates, benchmarks, Kubernetes deployment, and any claim of production
-post-quantum security remain out of scope.
+ML-KEM-768 baseline, Day 4 implements an educational hybrid combiner, and Day
+5 adds reproducible local performance and payload measurements.
+
+Certificates, authenticated protocol integration, TLS or Envoy measurement,
+Kubernetes deployment, and any claim of production post-quantum security
+remain out of scope.
