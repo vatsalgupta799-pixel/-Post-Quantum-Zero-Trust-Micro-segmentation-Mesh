@@ -240,12 +240,46 @@ sizes or observed network traffic. These local measurements include Python and
 installed-library overhead but do not measure network latency, TLS, Envoy,
 Kubernetes, certificates, or authentication.
 
+## Day 6 — Integration Readiness
+
+Day 6 adds a small, safe application-facing interface in
+`src/integration.py`. Call `establish_hybrid_session()` to execute the
+already-tested local hybrid workflow and receive public verification metadata:
+the protocol version, algorithm names, verified 32-byte session-key length,
+elapsed local duration, and completed verification checks.
+
+The result deliberately does **not** contain private keys, X25519 or ML-KEM
+shared secrets, the transcript, or the final session key. A failure raises
+`HybridIntegrationError` with a safe error code; it never reports success or
+falls back to one algorithm when a component fails. The current interface is
+an in-memory two-service simulation, not a remote API or a TLS handshake.
+
+Run the integration demonstration:
+
+~~~powershell
+.\.venv\Scripts\python.exe scripts\demo_hybrid.py
+~~~
+
+Run its focused checks and then the full suite:
+
+~~~powershell
+.\.venv\Scripts\python.exe -m pytest -v tests\test_integration.py
+.\.venv\Scripts\python.exe -m pytest -v
+~~~
+
+The demo prints only non-sensitive verification status. It confirms the
+X25519 and ML-KEM-768 components, hybrid derivation, matching session keys,
+and the expected key length. See
+[the integration guide](docs/integration_guide.md) for the safe result format,
+teammate boundaries, reproducibility checklist, and a Week 2 plan for
+standardized Envoy/TLS integration.
+
 ## Planned technology stack
 
 - Python 3.13 for this development environment;
 - `cryptography` for X25519 and ML-KEM-768 API support;
 - HKDF for the implemented classical and hybrid session-key derivations;
-- pytest for the Day 2 through Day 5 automated tests;
+- pytest for the Day 2 through Day 6 automated tests;
 - Matplotlib for Day 5 charts generated from the measured CSV;
 - Kubernetes NetworkPolicies, certificate authentication, OPA, Envoy,
   monitoring, and secrets management in the wider capstone project.
@@ -276,12 +310,14 @@ hybrid-key-exchange/
 │   ├── classical_ecdh.py       # Day 2 X25519 and HKDF implementation
 │   ├── pqc_mlkem.py            # Day 3 standalone ML-KEM-768 wrapper
 │   ├── hybrid_exchange.py      # Day 4 hybrid exchange and HKDF combiner
-│   └── benchmark.py            # Day 5 reusable benchmark utilities
+│   ├── benchmark.py            # Day 5 reusable benchmark utilities
+│   └── integration.py          # Day 6 safe integration interface
 ├── tests/
 │   ├── test_ecdh.py
 │   ├── test_mlkem.py            # Day 3 ML-KEM-768 tests
 │   ├── test_hybrid.py           # Day 4 hybrid exchange tests
-│   └── test_benchmark.py        # Day 5 benchmark checks
+│   ├── test_benchmark.py        # Day 5 benchmark checks
+│   └── test_integration.py      # Day 6 integration checks
 ├── scripts/
 │   ├── check_environment.py
 │   ├── demo_ecdh.py
@@ -291,7 +327,8 @@ hybrid-key-exchange/
 │   └── plot_benchmarks.py       # Day 5 CSV chart generator
 ├── docs/
 │   ├── architecture.md
-│   └── benchmark_report.md      # Generated from an actual benchmark run
+│   ├── benchmark_report.md      # Generated from an actual benchmark run
+│   └── integration_guide.md     # Day 6 teammate integration boundary
 ├── results/
 │   └── .gitkeep
 ├── .gitignore
@@ -410,17 +447,19 @@ version and enabled mechanism list if this route is needed.
 
 **Completed milestones: Day 1 — Environment and Repository Setup; Day 2 —
 Classical X25519 Key Exchange; Day 3 — Post-Quantum ML-KEM-768; Day 4 — Hybrid
-X25519 + ML-KEM-768 Key Establishment; Day 5 — Performance Benchmarking.**
-The repository includes actual 500-iteration local benchmark artifacts,
-charts, an analysis report, and automated benchmark checks for the verified
-machine.
+X25519 + ML-KEM-768 Key Establishment; Day 5 — Performance Benchmarking; Day
+6 — Integration Readiness.** The repository includes actual 500-iteration
+local benchmark artifacts, charts, an analysis report, a safe integration
+interface, and automated regression checks for the verified machine.
 
 Planned next steps:
 
-1. Add authenticated symmetric encryption and integration boundaries for the
-   wider zero-trust project.
-2. Measure the prototype inside an authenticated network or service-mesh
-   integration without confusing that work with these local timings.
+1. Plan and test certificate-backed, standardized Envoy mTLS with a
+   version-pinned hybrid TLS capability where supported.
+2. Integrate OPA authorization, Kubernetes microsegmentation, and safe
+   monitoring as separate controls.
+3. Prepare final verification, documentation, and presentation material for
+   Day 7.
 
 ## Limitations
 

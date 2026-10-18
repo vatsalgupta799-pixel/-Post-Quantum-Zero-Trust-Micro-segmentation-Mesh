@@ -227,14 +227,52 @@ separate latency and payload charts from the summary CSV, and writes a
 measurement-specific report to docs/benchmark_report.md. No private key,
 shared secret, or session key is written to any artifact.
 
-## Implementation boundary through Day 5
+## Implemented Day 6 integration boundary
+
+`src/integration.py` is a narrow façade over the secret-bearing in-memory
+`perform_hybrid_exchange()` result. It verifies both component agreements,
+transcript presence, final session-key agreement, and the expected 32-byte
+key length before returning a metadata-only `HybridSessionResult`.
+
+The integration result includes the protocol version, X25519 and ML-KEM-768
+algorithm identifiers, verified key length, local elapsed duration, and check
+names. It deliberately excludes all private keys, raw component secrets,
+transcript bytes, and final session-key bytes. Failures raise a sanitized
+`HybridIntegrationError` with a safe error code; the façade never falls back
+to a single algorithm.
+
+The updated `scripts/demo_hybrid.py` depends on this façade rather than
+directly presenting the low-level exchange result. Its two simulated services
+remain entirely in process. No network listener, wire protocol, certificate,
+TLS session, or service-mesh configuration is created by Day 6.
+
+## Integration boundary with the wider project
+
+The prototype is one input to a future design, not a replacement for the
+other zero-trust layers:
+
+- certificate validation must authenticate the workload identities;
+- OPA must decide whether an authenticated request is authorized;
+- Kubernetes NetworkPolicies must restrict allowed pod network paths;
+- Envoy or another supported transport must provide standardized TLS/mTLS;
+- monitoring must record only non-secret operational and security events.
+
+Current Envoy documentation describes BoringSSL-backed
+`X25519MLKEM768` support and named-group configuration. Any future deployment
+must pin the exact Envoy version and TLS provider, validate that both peers
+negotiate the intended group, configure certificate validation and mTLS, and
+test failure behavior. That work has not been performed in this repository.
+The detailed plan is in `docs/integration_guide.md`.
+
+## Implementation boundary through Day 6
 
 Day 1 verified that the local Python environment exposes X25519 and ML-KEM-768
 through the selected `cryptography` package. Day 2 implements and tests the
 classical X25519/HKDF baseline, Day 3 independently implements and tests the
-ML-KEM-768 baseline, Day 4 implements an educational hybrid combiner, and Day
-5 adds reproducible local performance and payload measurements.
+ML-KEM-768 baseline, Day 4 implements an educational hybrid combiner, Day 5
+adds reproducible local performance and payload measurements, and Day 6 adds a
+safe application-facing metadata interface and end-to-end local demonstration.
 
 Certificates, authenticated protocol integration, TLS or Envoy measurement,
-Kubernetes deployment, and any claim of production post-quantum security
-remain out of scope.
+Kubernetes deployment, OPA authorization, and any claim of production
+post-quantum security remain out of scope.

@@ -168,16 +168,16 @@ def test_hybrid_demo_output_is_sanitized(capsys: pytest.CaptureFixture[str]) -> 
 
     assert main() == 0
     assert capsys.readouterr().out == (
-        "=== Hybrid Key Establishment Demo ===\n"
+        "=== Hybrid Key Exchange Integration Demo ===\n"
         "\n"
-        "[PASS] X25519 key exchange completed\n"
-        "[PASS] X25519 shared secrets match\n"
-        "[PASS] ML-KEM-768 encapsulation completed\n"
-        "[PASS] ML-KEM-768 decapsulation completed\n"
-        "[PASS] ML-KEM shared secrets match\n"
-        "[PASS] Handshake transcripts match\n"
-        "[PASS] Hybrid session keys match\n"
-        "[PASS] Hybrid session key length: 32 bytes\n"
+        "[PASS] Protocol version: hybrid-v1\n"
+        "[PASS] Algorithms: X25519 + ML-KEM-768\n"
+        "[PASS] X25519 component verified\n"
+        "[PASS] ML-KEM-768 component verified\n"
+        "[PASS] Hybrid key derivation completed\n"
+        "[PASS] Both session keys match\n"
+        "[PASS] Session key length: 32 bytes\n"
+        "[PASS] Result contains public metadata only\n"
         "\n"
-        "Hybrid key-establishment demonstration completed.\n"
+        "Integration demonstration completed successfully.\n"
     )

@@ -1,7 +1,7 @@
 # Day 1 verification dependency.
 # X25519 is available in the asymmetric API; ML-KEM-768 was added in 47.0.0.
 cryptography>=47.0.0,<51.0.0
-# Day 2, Day 3, and Day 4 automated tests.
+# Day 2 through Day 6 automated tests.
 pytest>=8.0,<9.0
 # Day 5 chart generation from actual benchmark CSV data.
 matplotlib>=3.9,<4.0

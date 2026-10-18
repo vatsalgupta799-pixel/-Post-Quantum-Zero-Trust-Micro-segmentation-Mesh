@@ -1,53 +1,48 @@
-"""Run the Day 4 hybrid X25519 and ML-KEM-768 demonstration."""
+"""Run the Day 6 hybrid key-establishment integration demonstration."""
 
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-from cryptography.exceptions import UnsupportedAlgorithm
-
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.hybrid_exchange import (  # noqa: E402
-    perform_hybrid_exchange,
+from src.integration import (  # noqa: E402
+    HybridIntegrationError,
+    VERIFICATION_CHECKS,
+    establish_hybrid_session,
 )
-from src.classical_ecdh import DEFAULT_SESSION_KEY_LENGTH  # noqa: E402
 
 
 def main() -> int:
-    """Run a local two-service hybrid exchange and print only safe results."""
+    """Run the safe integration interface and print only public metadata."""
 
-    print("=== Hybrid Key Establishment Demo ===")
+    print("=== Hybrid Key Exchange Integration Demo ===")
     print()
 
     try:
-        result = perform_hybrid_exchange()
-    except UnsupportedAlgorithm as error:
-        print(f"[BLOCKED] Required cryptographic backend unavailable: {error}")
-        return 2
-    except (RuntimeError, TypeError, ValueError) as error:
-        print(f"[FAIL] Hybrid key establishment failed: {error}")
+        result = establish_hybrid_session()
+    except HybridIntegrationError as error:
+        print(f"[FAIL] Hybrid key establishment did not complete ({error.code})")
         return 1
 
-    print("[PASS] X25519 key exchange completed")
-    print("[PASS] X25519 shared secrets match")
-    print("[PASS] ML-KEM-768 encapsulation completed")
-    print("[PASS] ML-KEM-768 decapsulation completed")
-    print("[PASS] ML-KEM shared secrets match")
-    print("[PASS] Handshake transcripts match")
-    print("[PASS] Hybrid session keys match")
-
-    if len(result.session_key_a) != DEFAULT_SESSION_KEY_LENGTH:
-        print("[FAIL] Unexpected hybrid session key length")
+    if not result.success or result.verification_checks != VERIFICATION_CHECKS:
+        print("[FAIL] Hybrid verification metadata is incomplete")
         return 1
-    print(f"[PASS] Hybrid session key length: {len(result.session_key_a)} bytes")
+
+    print(f"[PASS] Protocol version: {result.protocol_version}")
+    print(f"[PASS] Algorithms: {' + '.join(result.algorithms)}")
+    print("[PASS] X25519 component verified")
+    print("[PASS] ML-KEM-768 component verified")
+    print("[PASS] Hybrid key derivation completed")
+    print("[PASS] Both session keys match")
+    print(f"[PASS] Session key length: {result.session_key_length} bytes")
+    print("[PASS] Result contains public metadata only")
 
     print()
-    print("Hybrid key-establishment demonstration completed.")
+    print("Integration demonstration completed successfully.")
     return 0
 
 
