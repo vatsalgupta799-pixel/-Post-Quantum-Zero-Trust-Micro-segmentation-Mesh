@@ -175,6 +175,7 @@ def test_hybrid_demo_output_is_sanitized(capsys: pytest.CaptureFixture[str]) -> 
         "[PASS] X25519 component verified\n"
         "[PASS] ML-KEM-768 component verified\n"
         "[PASS] Hybrid key derivation completed\n"
+        "[PASS] Simulated Service A and Service B completed the exchange\n"
         "[PASS] Both session keys match\n"
         "[PASS] Session key length: 32 bytes\n"
         "[PASS] Result contains public metadata only\n"

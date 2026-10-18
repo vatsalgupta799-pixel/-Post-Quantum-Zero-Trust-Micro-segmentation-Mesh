@@ -59,6 +59,7 @@ def test_demo_output_is_sanitized_and_reports_actual_verification(
 
     assert "[PASS] X25519 component verified" in output
     assert "[PASS] ML-KEM-768 component verified" in output
+    assert "[PASS] Simulated Service A and Service B completed the exchange" in output
     assert "[PASS] Both session keys match" in output
     assert "[PASS] Result contains public metadata only" in output
     assert "private key" not in output.lower()

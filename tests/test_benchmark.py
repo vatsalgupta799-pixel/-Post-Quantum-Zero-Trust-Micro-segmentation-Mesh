@@ -25,6 +25,7 @@ from src.benchmark import (
     measure_payload_sizes,
     percentile_linear,
     relative_overhead,
+    render_benchmark_report,
     summarize_latencies,
     validate_benchmark_config,
     write_benchmark_outputs,
@@ -203,3 +204,14 @@ def test_invalid_iteration_counts_are_rejected() -> None:
 def test_same_stored_samples_produce_same_summary() -> None:
     samples = _synthetic_run().samples
     assert build_summaries(samples, _payloads()) == build_summaries(samples, _payloads())
+
+
+def test_rendered_report_includes_all_documented_latency_statistics() -> None:
+    report = render_benchmark_report(_synthetic_run())
+
+    assert "| Approach | Operation | Mean | Median | Std. dev. | Min | Max | P95 |" in report
+    assert "## Reproducing safely" in report
+    assert (
+        "| X25519 + HKDF | complete_exchange | 1.500000 | 1.500000 | "
+        "0.707107 | 1.000000 | 2.000000 | 1.950000 |"
+    ) in report

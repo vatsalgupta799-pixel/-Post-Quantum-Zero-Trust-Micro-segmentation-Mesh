@@ -264,7 +264,20 @@ negotiate the intended group, configure certificate validation and mTLS, and
 test failure behavior. That work has not been performed in this repository.
 The detailed plan is in `docs/integration_guide.md`.
 
-## Implementation boundary through Day 6
+## Day 7 verification and submission boundary
+
+Day 7 adds no new network, TLS, certificate, Kubernetes, OPA, Envoy, or
+secret-management implementation. It verifies the existing local flows and
+records the evidence needed for review. The Mermaid diagrams above remain
+limited to the flows implemented in this repository; the first diagram is
+explicitly proposed, while the Day 2 through Day 4 diagrams describe the
+in-process code paths.
+
+See `docs/reproducibility_checklist.md` for executed commands and outcomes,
+`docs/security_limitations.md` for the deployment boundary, and
+`docs/presentation_notes.md` for a concise explanation of the same design.
+
+## Implementation boundary through Day 7
 
 Day 1 verified that the local Python environment exposes X25519 and ML-KEM-768
 through the selected `cryptography` package. Day 2 implements and tests the
@@ -272,6 +285,8 @@ classical X25519/HKDF baseline, Day 3 independently implements and tests the
 ML-KEM-768 baseline, Day 4 implements an educational hybrid combiner, Day 5
 adds reproducible local performance and payload measurements, and Day 6 adds a
 safe application-facing metadata interface and end-to-end local demonstration.
+Day 7 verifies those artifacts and documents submission material without
+changing the cryptographic construction.
 
 Certificates, authenticated protocol integration, TLS or Envoy measurement,
 Kubernetes deployment, OPA authorization, and any claim of production

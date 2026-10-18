@@ -37,6 +37,7 @@ def main() -> int:
     print("[PASS] X25519 component verified")
     print("[PASS] ML-KEM-768 component verified")
     print("[PASS] Hybrid key derivation completed")
+    print("[PASS] Simulated Service A and Service B completed the exchange")
     print("[PASS] Both session keys match")
     print(f"[PASS] Session key length: {result.session_key_length} bytes")
     print("[PASS] Result contains public metadata only")

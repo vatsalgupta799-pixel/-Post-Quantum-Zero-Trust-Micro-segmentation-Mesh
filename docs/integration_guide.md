@@ -21,6 +21,7 @@ It does not send messages to a peer or expose a final session key.
 | OPA teammate | Policy decisions about whether an identified workload may perform an action | Transport encryption or network isolation |
 | Kubernetes teammate | Pod-to-pod restrictions through NetworkPolicies | Workload identity, L7 authorization, or encryption |
 | Envoy/service-mesh teammate | TLS/mTLS transport, certificate wiring, connection policy, and service-to-service routing | A direct adapter for this Python prototype |
+| Vault or secrets-management teammate | Long-lived credential storage, access controls, rotation, revocation, and audit trails | A replacement for authenticated key establishment or transport security |
 | Monitoring teammate | Non-secret operational and security events, such as success/failure codes and policy decisions | Private keys, shared secrets, final session keys, or raw key-exchange material |
 
 These controls complement one another. A successful key exchange does not
@@ -169,7 +170,10 @@ change:
    success/failure code, policy decision, and correlation ID; exclude private
    keys, shared secrets, transcripts containing sensitive values, and session
    keys.
-6. Team: perform an integrated, reproducible test that verifies negotiated
+6. Secrets-management teammate: define storage, access, rotation, revocation,
+   and audit expectations for long-lived credentials; do not treat the local
+   in-memory session key as a persisted secret-management integration.
+7. Team: perform an integrated, reproducible test that verifies negotiated
    TLS group, mTLS identity validation, policy enforcement, microsegmentation,
    and safe observability independently.
 
@@ -217,3 +221,6 @@ It does not authenticate peers, provide a secure channel, replace TLS/mTLS,
 prove post-quantum security, or establish production readiness. For a real
 deployment, use reviewed standardized hybrid TLS support and preserve separate
 identity, authorization, segmentation, and monitoring controls.
+
+See `docs/security_limitations.md` for the complete prototype and deployment
+boundary, including ML-KEM implicit rejection and key-lifecycle limits.

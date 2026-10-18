@@ -1,8 +1,12 @@
-# -Post-Quantum-Zero-Trust-Micro-segmentation-Mesh
+# Post-Quantum Zero-Trust Microsegmentation Mesh
 
-A hybrid post-quantum Zero-Trust security framework integrating ML-KEM, mTLS,
-and Kubernetes microsegmentation to secure service-to-service communication
-while evaluating performance and authentication overhead.
+## Task 4 — Hybrid Key Exchange Demonstration
+
+A capstone workspace for Task 4 of a Post-Quantum Zero-Trust
+Microsegmentation Mesh. It demonstrates local X25519, ML-KEM-768, and hybrid
+key establishment, while documenting how a future system could integrate
+identity, authorization, service-mesh transport, and microsegmentation. This
+repository does not itself deploy mTLS, Envoy, or Kubernetes integration.
 
 ## Day 1 — Environment and Repository Setup
 
@@ -32,9 +36,10 @@ Day 1 covers:
 - ML-KEM-768 availability checking;
 - the proposed architecture and a recovery plan for unsupported platforms.
 
-Symmetric encryption, benchmarks, certificates, Envoy, OPA, Vault, and
-service-mesh integration are future work. The independent and hybrid
-key-establishment components are documented below.
+Symmetric encryption, certificates, Envoy, OPA, Vault, and service-mesh
+integration remain future work. Local benchmarking and the safe integration
+façade are implemented; the independent and hybrid key-establishment
+components are documented below.
 
 ## Day 2 — Classical X25519 Key Exchange
 
@@ -202,10 +207,12 @@ time.perf_counter_ns, verifies correctness outside the timed section, and
 retains raw samples alongside mean, median, sample standard deviation, minimum,
 maximum, and linearly interpolated 95th-percentile latency.
 
-Run the benchmark from the project root with the existing virtual environment:
+The checked-in Day 5 artifacts are preserved reference measurements. To run a
+fresh benchmark from the project root without overwriting them, write it to an
+ignored temporary directory:
 
 ~~~powershell
-.\.venv\Scripts\python.exe scripts\benchmark.py --warmup 20 --iterations 500
+.\.venv\Scripts\python.exe scripts\benchmark.py --warmup 20 --iterations 500 --output-dir .tmp\benchmark-run --report-path .tmp\benchmark-report.md
 ~~~
 
 The default is 20 warm-up and 500 measured iterations for each operation.
@@ -221,11 +228,16 @@ Run the focused benchmark checks, or all project tests:
 .\.venv\Scripts\python.exe -m pytest -v
 ~~~
 
-Generate charts from the measured summary CSV:
+Generate charts from the fresh measured summary CSV:
 
 ~~~powershell
-.\.venv\Scripts\python.exe scripts\plot_benchmarks.py
+.\.venv\Scripts\python.exe scripts\plot_benchmarks.py --summary-path .tmp\benchmark-run\benchmark_summary.csv --output-dir .tmp\benchmark-charts
 ~~~
+
+On Linux/macOS, replace the interpreter path with `./.venv/bin/python` and
+use forward-slash paths. To deliberately replace the checked-in reference
+artifacts, review the difference first and use the explicit `--overwrite`
+option; it is not needed for normal reproduction.
 
 Both scripts use only actual results from the current machine. The benchmark
 stores raw samples in results/benchmark_results.csv, summary statistics and
@@ -274,12 +286,25 @@ and the expected key length. See
 teammate boundaries, reproducibility checklist, and a Week 2 plan for
 standardized Envoy/TLS integration.
 
+## Day 7 — Final Verification and Submission Materials
+
+Day 7 verifies the existing environment, all three demonstrations, the full
+test suite, and the stored benchmark artifacts without replacing them. It also
+adds submission-ready material:
+
+- [architecture](docs/architecture.md) — implemented flows and matching Mermaid diagrams;
+- [benchmark report](docs/benchmark_report.md) — recorded local measurements and safe rerun commands;
+- [integration guide](docs/integration_guide.md) — interfaces and team boundaries;
+- [security limitations](docs/security_limitations.md) — explicit prototype and deployment limitations;
+- [reproducibility checklist](docs/reproducibility_checklist.md) — what was actually verified; and
+- [presentation notes](docs/presentation_notes.md) — a 5–7 minute outline and viva answers.
+
 ## Planned technology stack
 
 - Python 3.13 for this development environment;
 - `cryptography` for X25519 and ML-KEM-768 API support;
 - HKDF for the implemented classical and hybrid session-key derivations;
-- pytest for the Day 2 through Day 6 automated tests;
+- pytest for the Day 2 through Day 7 automated tests;
 - Matplotlib for Day 5 charts generated from the measured CSV;
 - Kubernetes NetworkPolicies, certificate authentication, OPA, Envoy,
   monitoring, and secrets management in the wider capstone project.
@@ -328,7 +353,10 @@ hybrid-key-exchange/
 ├── docs/
 │   ├── architecture.md
 │   ├── benchmark_report.md      # Generated from an actual benchmark run
-│   └── integration_guide.md     # Day 6 teammate integration boundary
+│   ├── integration_guide.md     # Day 6 teammate integration boundary
+│   ├── presentation_notes.md    # Day 7 capstone outline and viva answers
+│   ├── reproducibility_checklist.md
+│   └── security_limitations.md
 ├── results/
 │   └── .gitkeep
 ├── .gitignore
@@ -448,9 +476,11 @@ version and enabled mechanism list if this route is needed.
 **Completed milestones: Day 1 — Environment and Repository Setup; Day 2 —
 Classical X25519 Key Exchange; Day 3 — Post-Quantum ML-KEM-768; Day 4 — Hybrid
 X25519 + ML-KEM-768 Key Establishment; Day 5 — Performance Benchmarking; Day
-6 — Integration Readiness.** The repository includes actual 500-iteration
-local benchmark artifacts, charts, an analysis report, a safe integration
-interface, and automated regression checks for the verified machine.
+6 — Integration Readiness; Day 7 — Final Verification and Submission
+Preparation.** The repository includes actual 500-iteration local benchmark
+artifacts, charts, an analysis report, a safe integration interface,
+automated regression checks, and submission documentation for the verified
+machine.
 
 Planned next steps:
 
@@ -458,8 +488,8 @@ Planned next steps:
    version-pinned hybrid TLS capability where supported.
 2. Integrate OPA authorization, Kubernetes microsegmentation, and safe
    monitoring as separate controls.
-3. Prepare final verification, documentation, and presentation material for
-   Day 7.
+3. Obtain protocol and deployment review before treating any part of the
+   educational prototype as production-ready.
 
 ## Limitations
 
@@ -469,6 +499,7 @@ hybrid flow establishes a matching session key in a local simulation, but it
 does not authenticate services or provide a complete secure channel.
 `cryptography`'s low-level asymmetric APIs require careful protocol design,
 validation, key lifecycle handling, and review before production use.
+See [security limitations](docs/security_limitations.md) for the full boundary.
 
 ## Official references
 

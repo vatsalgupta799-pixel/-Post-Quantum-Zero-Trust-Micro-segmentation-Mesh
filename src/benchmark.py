@@ -667,6 +667,8 @@ def render_benchmark_report(run: BenchmarkRun) -> str:
             _format_ms(summary.statistics.mean_ms),
             _format_ms(summary.statistics.median_ms),
             _format_ms(summary.statistics.stddev_ms),
+            _format_ms(summary.statistics.min_ms),
+            _format_ms(summary.statistics.max_ms),
             _format_ms(summary.statistics.p95_ms),
         ]
         for summary in run.summaries
@@ -763,6 +765,15 @@ def render_benchmark_report(run: BenchmarkRun) -> str:
             "checks. Individual rows overlap with complete exchanges and must not be "
             "added together.",
             "",
+            "## Reproducing safely",
+            "",
+            "To preserve existing artifacts, write a fresh run to a separate output "
+            "directory instead of using --overwrite. For example, run `python "
+            "scripts/benchmark.py --warmup 20 --iterations 500 --output-dir "
+            "<new-output-dir> --report-path <new-report-path>`, then run `python "
+            "scripts/plot_benchmarks.py --summary-path "
+            "<new-output-dir>/benchmark_summary.csv --output-dir <new-chart-dir>`.",
+            "",
             "## Results",
             "",
             "Latency values are milliseconds.",
@@ -774,6 +785,8 @@ def render_benchmark_report(run: BenchmarkRun) -> str:
                     "Mean",
                     "Median",
                     "Std. dev.",
+                    "Min",
+                    "Max",
                     "P95",
                 ],
                 result_rows,
