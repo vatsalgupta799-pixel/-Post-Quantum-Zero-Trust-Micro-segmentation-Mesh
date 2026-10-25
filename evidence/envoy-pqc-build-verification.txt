@@ -18,3 +18,12 @@ X25519MLKEM768:X25519:P-256:P-384:P-521
 
 === Envoy PQC Feature Flag ===
 envoy.reloadable_features.pqc_default_ecdh_curves
+
+=== Live Hybrid TLS Handshake Test ===
+Test: Local OpenSSL TLS 1.3 client/server
+Requested group: X25519MLKEM768
+Negotiated TLS 1.3 group: X25519MLKEM768
+Cipher suite: TLS_AES_256_GCM_SHA384
+Result: SUCCESS - hybrid group negotiated in the local OpenSSL test.
+Certificate: Temporary self-signed localhost certificate; verification warning expected.
+Scope limitation: This verifies OpenSSL hybrid TLS negotiation, not a direct Envoy handshake.
