@@ -27,3 +27,23 @@ Cipher suite: TLS_AES_256_GCM_SHA384
 Result: SUCCESS - hybrid group negotiated in the local OpenSSL test.
 Certificate: Temporary self-signed localhost certificate; verification warning expected.
 Scope limitation: This verifies OpenSSL hybrid TLS negotiation, not a direct Envoy handshake.
+
+Direct Envoy hybrid TLS handshake verification
+Date: 2026-10-25
+Envoy binary: ~/envoy-build-cache/bin/envoy
+Configuration: /tmp/envoy-pqc.yaml
+Listener: 127.0.0.1:8444
+Client command:
+openssl s_client -connect 127.0.0.1:8444 -tls1_3 -groups X25519MLKEM768 -brief </dev/null
+
+Observed results:
+- CONNECTION ESTABLISHED
+- Protocol version: TLSv1.3
+- Cipher suite: TLS_AES_256_GCM_SHA384
+- Negotiated TLS 1.3 group: X25519MLKEM768
+- Peer certificate: CN=localhost
+- Certificate verification warning: self-signed test certificate
+
+Conclusion: The locally built Envoy successfully negotiated TLS 1.3 using
+the X25519MLKEM768 hybrid key-exchange group with the OpenSSL test client.
+This verifies hybrid key exchange, not a complete production mTLS deployment.
