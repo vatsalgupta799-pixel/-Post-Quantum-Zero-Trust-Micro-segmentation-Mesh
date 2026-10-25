@@ -1,0 +1,20 @@
+Envoy PQC Build Verification
+Date: Sun Oct 25 03:35:07 AM EDT 2026
+
+=== Envoy Version ===
+
+/home/vatsal/envoy-build-cache/bin/envoy  version: 85aa7f0fa5525d7b60d3d95e92902522a8a69dfb/1.41.0-dev/Clean/RELEASE/BoringSSL
+
+
+=== Hybrid PQC Identifiers ===
+failed to parse private key as RSA, ECDSA, or EdDSARsaSigningKeyalgorithmECPointFormatNamedCurvesecp256r1secp384r1secp521r1X25519NamedGroupFFDHE2048FFDHE3072FFDHE4096FFDHE6144FFDHE8192MLKEM1024secp256r1MLKEM768X25519MLKEM768
+N4bssl12_GLOBAL__N_122X25519MLKEM768KeyShareE
+TMLKEM768
+X25519Kyber768Draft00
+X25519MLKEM768
+(X25519MLKEM768:P-256
+X25519MLKEM768:X25519:P-256
+X25519MLKEM768:X25519:P-256:P-384:P-521
+
+=== Envoy PQC Feature Flag ===
+envoy.reloadable_features.pqc_default_ecdh_curves
