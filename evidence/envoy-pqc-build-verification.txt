@@ -1,0 +1,49 @@
+Envoy PQC Build Verification
+Date: Sun Oct 25 03:35:07 AM EDT 2026
+
+=== Envoy Version ===
+
+/home/vatsal/envoy-build-cache/bin/envoy  version: 85aa7f0fa5525d7b60d3d95e92902522a8a69dfb/1.41.0-dev/Clean/RELEASE/BoringSSL
+
+
+=== Hybrid PQC Identifiers ===
+failed to parse private key as RSA, ECDSA, or EdDSARsaSigningKeyalgorithmECPointFormatNamedCurvesecp256r1secp384r1secp521r1X25519NamedGroupFFDHE2048FFDHE3072FFDHE4096FFDHE6144FFDHE8192MLKEM1024secp256r1MLKEM768X25519MLKEM768
+N4bssl12_GLOBAL__N_122X25519MLKEM768KeyShareE
+TMLKEM768
+X25519Kyber768Draft00
+X25519MLKEM768
+(X25519MLKEM768:P-256
+X25519MLKEM768:X25519:P-256
+X25519MLKEM768:X25519:P-256:P-384:P-521
+
+=== Envoy PQC Feature Flag ===
+envoy.reloadable_features.pqc_default_ecdh_curves
+
+=== Live Hybrid TLS Handshake Test ===
+Test: Local OpenSSL TLS 1.3 client/server
+Requested group: X25519MLKEM768
+Negotiated TLS 1.3 group: X25519MLKEM768
+Cipher suite: TLS_AES_256_GCM_SHA384
+Result: SUCCESS - hybrid group negotiated in the local OpenSSL test.
+Certificate: Temporary self-signed localhost certificate; verification warning expected.
+Scope limitation: This verifies OpenSSL hybrid TLS negotiation, not a direct Envoy handshake.
+
+Direct Envoy hybrid TLS handshake verification
+Date: 2026-10-25
+Envoy binary: ~/envoy-build-cache/bin/envoy
+Configuration: /tmp/envoy-pqc.yaml
+Listener: 127.0.0.1:8444
+Client command:
+openssl s_client -connect 127.0.0.1:8444 -tls1_3 -groups X25519MLKEM768 -brief </dev/null
+
+Observed results:
+- CONNECTION ESTABLISHED
+- Protocol version: TLSv1.3
+- Cipher suite: TLS_AES_256_GCM_SHA384
+- Negotiated TLS 1.3 group: X25519MLKEM768
+- Peer certificate: CN=localhost
+- Certificate verification warning: self-signed test certificate
+
+Conclusion: The locally built Envoy successfully negotiated TLS 1.3 using
+the X25519MLKEM768 hybrid key-exchange group with the OpenSSL test client.
+This verifies hybrid key exchange, not a complete production mTLS deployment.

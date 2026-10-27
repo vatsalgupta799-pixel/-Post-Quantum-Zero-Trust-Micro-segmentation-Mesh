@@ -1,3 +1,6 @@
+
+# Local Istio CLI download
+/istio-1.31.1/
 # Python virtual environment and local tooling
 .venv/
 .tmp/

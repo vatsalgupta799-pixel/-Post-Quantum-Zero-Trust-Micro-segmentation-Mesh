@@ -1,0 +1,118 @@
+**Build a small, practical authorization system for our Zero-Trust cybersecurity project.
+
+#Step 1: Created your first real authorization policy
+Our goal is to make OPA decide whether a user or workload can access a protected resource.
+
+--For example:
+User role          Action	 Resource	 Decision
+admin	             read	   logs	     Allow
+admin	             delete	 logs	     Allow
+developer	         read	   logs	     Allow
+developer	         delete	 logs	     Deny
+guest	             read	   logs	     Deny
+
+-OPA evaluates the request against your policy and returns true or false. Your application can then use that decision to allow or deny access.
+
+#Step 2: Created the policy file
+Open PowerShell and run:
+mkdir "$HOME\opa-project"
+
+**Created the policy file authz.rego by copying this entire command:
+@'
+package authz
+
+import rego.v1
+
+default allow := false
+
+allow if {
+    input.role == "admin"
+    input.resource == "logs"
+    input.action in {"read", "delete"}
+}
+
+allow if {
+    input.role == "developer"
+    input.resource == "logs"
+    input.action == "read"
+}
+'@ | Set-Content -Encoding ascii authz.rego
+
+
+**What this policy does:
+- package authz defines the policy's namespace.
+- default allow := false denies requests unless an allow rule matches.
+- The first rule permits admins to read or delete logs.
+- The second rule permits developers to read logs.
+- All other requests are denied.
+
+
+#Step 3: Tested an authorized request
+**Create an input file for a developer reading logs:
+'{"role":"developer","action":"read","resource":"logs"}' |
+    Set-Content -Encoding ascii input.json
+
+
+
+**Asked OPA to evaluate the policy:
+& "$HOME\opa\opa.exe" eval `
+    --data authz.rego `
+    --input input.json `
+    "data.authz.allow"
+
+**Expected output:
+true
+
+
+--Here the developer is authorized to read logs.
+
+
+#Step 4: Tested an unauthorized request-
+Now test whether the developer can delete logs:
+'{"role":"developer","action":"delete","resource":"logs"}' |
+    Set-Content -Encoding ascii input.json
+
+
+--Run the evaluation again:
+& "$HOME\opa\opa.exe" eval `
+    --data authz.rego `
+    --input input.json `
+    "data.authz.allow"
+
+--Expected output:
+false
+
+
+-- Here the developer is denied permission to delete logs.
+
+
+
+#Step 5: Tested the admin role-
+--Test an admin deleting logs:
+'{"role":"admin","action":"delete","resource":"logs"}' |
+    Set-Content -Encoding ascii input.json
+
+
+--Run:
+& "$HOME\opa\opa.exe" eval `
+    --data authz.rego `
+    --input input.json `
+    "data.authz.allow"
+
+
+--Expected output:
+true
+
+
+#Step 6: Validated your policy
+--Run:
+& "$HOME\opa\opa.exe" check authz.rego
+
+
+--The policy is valid, OPA complete the check without reporting errors.
+
+
+
+
+
+
