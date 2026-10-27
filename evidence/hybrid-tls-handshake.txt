@@ -1,0 +1,22 @@
+Hybrid TLS Handshake Verification
+=================================
+
+Environment:
+- Server: Envoy 1.41.0-dev (BoringSSL build)
+- Client: OpenSSL s_client
+- Target: 127.0.0.1:8444
+- TLS version: TLS 1.3
+
+Observed successful negotiation:
+- Protocol version: TLSv1.3
+- Cipher suite: TLS_AES_256_GCM_SHA384
+- Negotiated TLS 1.3 group: X25519MLKEM768
+
+Certificate:
+- Subject: CN=localhost
+- Type: Temporary self-signed test certificate
+- Verification warning: self-signed certificate
+
+Result:
+The TLS handshake completed and negotiated X25519MLKEM768.
+This is local test evidence, not production certificate validation.
