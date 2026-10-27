@@ -1,0 +1,13 @@
+algorithm,operation,iterations,mean_ms,median_ms,stddev_ms,min_ms,max_ms,p95_ms,x25519_public_key_bytes,x25519_public_key_count,mlkem_public_key_bytes,mlkem_public_key_count,mlkem_ciphertext_bytes,mlkem_ciphertext_count,total_payload_bytes
+classical_x25519_hkdf,x25519_key_generation,500,0.044813,0.043900,0.003713,0.041400,0.079900,0.050205,,,,,,,
+classical_x25519_hkdf,x25519_shared_secret_derivation,500,0.036607,0.036300,0.002337,0.034300,0.058900,0.040205,,,,,,,
+classical_x25519_hkdf,x25519_hkdf_session_key_derivation,500,0.008007,0.007500,0.006904,0.007300,0.160200,0.008100,,,,,,,
+classical_x25519_hkdf,complete_exchange,500,0.182420,0.176800,0.017558,0.171300,0.317700,0.205825,32,2,0,0,0,0,64
+mlkem_768,mlkem_768_key_generation,500,0.225565,0.222650,0.027258,0.179900,0.370100,0.276535,,,,,,,
+mlkem_768,mlkem_768_encapsulation,500,0.052698,0.051000,0.008140,0.045200,0.144400,0.067630,,,,,,,
+mlkem_768,mlkem_768_decapsulation,500,0.075976,0.075500,0.010149,0.065400,0.156800,0.094400,,,,,,,
+mlkem_768,complete_exchange,500,0.341442,0.330650,0.031419,0.289600,0.564200,0.388155,0,0,1184,1,1088,1,2272
+hybrid_x25519_mlkem_768,hybrid_x25519_operations,500,0.068535,0.066600,0.007702,0.062000,0.179400,0.081400,,,,,,,
+hybrid_x25519_mlkem_768,hybrid_mlkem_encapsulation_and_decapsulation,500,0.125095,0.122200,0.009540,0.116200,0.201200,0.143630,,,,,,,
+hybrid_x25519_mlkem_768,hybrid_hkdf_combination,500,0.035067,0.032900,0.006558,0.031200,0.121900,0.046040,,,,,,,
+hybrid_x25519_mlkem_768,complete_exchange,500,0.567967,0.573650,0.038415,0.471600,0.764200,0.620815,32,2,1184,1,1088,1,2336

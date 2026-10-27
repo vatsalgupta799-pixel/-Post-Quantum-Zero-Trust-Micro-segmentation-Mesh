@@ -1,3 +1,49 @@
 
 # Local Istio CLI download
 /istio-1.31.1/
+# Python virtual environment and local tooling
+.venv/
+.tmp/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment files and sensitive material
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.csr
+secrets/
+credentials/
+
+# Generated results and build artifacts
+build/
+dist/
+*.egg-info/
+*.log
+results/*.json
+results/*.csv
+results/*.txt
+results/*.png
+!results/benchmark_results.csv
+!results/benchmark_summary.csv
+!results/benchmark_environment.json
+!results/latency_comparison.png
+!results/payload_size_comparison.png
+
+# Editor and operating-system files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
