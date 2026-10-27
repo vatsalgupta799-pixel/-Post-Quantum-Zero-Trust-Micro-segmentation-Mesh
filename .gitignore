@@ -47,3 +47,6 @@ results/*.png
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Local certificates and private keys
+certs/
