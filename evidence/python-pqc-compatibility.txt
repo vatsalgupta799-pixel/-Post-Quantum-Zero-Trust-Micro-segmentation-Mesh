@@ -1,0 +1,24 @@
+Python and Envoy PQC Compatibility Check
+========================================
+
+Python TLS environment:
+- OpenSSL version: 3.6.3
+- TLS 1.3 support: True
+- Python SSLContext.set_ecdh_curve(): available
+- Calling set_ecdh_curve("X25519MLKEM768") raised:
+  ValueError: unknown elliptic curve name 'X25519MLKEM768'
+
+Envoy TLS environment:
+- Envoy version: 1.41.0-dev
+- TLS library: BoringSSL
+- Previously verified negotiated group: X25519MLKEM768
+
+Interpretation:
+The Python standard ssl API rejected this hybrid group name through
+set_ecdh_curve(). Envoy successfully negotiated the group using its
+BoringSSL build. These observations do not establish that all OpenSSL
+builds lack hybrid TLS support.
+
+Scope:
+This evidence was collected on Kali Linux. The separate Windows
+Python/OpenSSL compatibility issue still requires its own verification.
