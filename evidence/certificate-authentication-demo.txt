@@ -1,0 +1,30 @@
+Certificate-Based Authentication Demo
+=====================================
+
+Project: Post-Quantum Zero-Trust Microsegmentation Mesh
+
+1. Certificate Authority
+   - Created a local CA certificate: certs/ca-cert.pem
+   - CA private key stored locally and excluded from Git.
+
+2. Server Certificate
+   - Generated server private key and certificate signing request.
+   - Signed server certificate with the local CA.
+   - Verified successfully using OpenSSL.
+
+3. Client Certificate
+   - Generated client private key and certificate signing request.
+   - Signed client certificate with the local CA.
+   - Verified successfully using OpenSSL.
+
+4. Trusted Client Test
+   - Started an OpenSSL TLS server requiring a client certificate.
+   - Connected using the CA-signed client certificate.
+   - Server log identified CN=trusted-client.
+   - Certificate verification returned success.
+
+5. Security Note
+   - This demonstrates conventional CA-issued X.509 certificate authentication.
+   - It does not demonstrate PQC-signed certificates.
+   - The no-client-certificate rejection test still needs clear confirmation.
+   - Private keys must not be committed to Git.
