@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-10-18T19:38:11+05:30",
+  "operating_system": "Windows-11-10.0.26300-SP0",
+  "architecture": "AMD64",
+  "cpu_model": "Intel(R) Xeon(R) W-10855M CPU @ 2.80GHz",
+  "logical_cpu_count": 12,
+  "python_version": "3.13.12",
+  "cryptographic_libraries": {
+    "cryptography": "50.0.2",
+    "mlkem_implementation": "cryptography.hazmat.primitives.asymmetric.mlkem.MLKEM768",
+    "openssl_backend": "OpenSSL 4.0.3 29 Sep 2026",
+    "matplotlib": "3.11.2"
+  },
+  "benchmark_configuration": {
+    "warmup_iterations": 20,
+    "measured_iterations": 500,
+    "timer": "time.perf_counter_ns",
+    "measurement_units": {
+      "raw_samples": "nanoseconds",
+      "summaries": "milliseconds"
+    },
+    "percentile_method": "linear interpolation at index (n - 1) * p"
+  },
+  "payload_sizes": [
+    {
+      "algorithm": "classical_x25519_hkdf",
+      "x25519_public_key_bytes": 32,
+      "x25519_public_key_count": 2,
+      "mlkem_public_key_bytes": 0,
+      "mlkem_public_key_count": 0,
+      "mlkem_ciphertext_bytes": 0,
+      "mlkem_ciphertext_count": 0,
+      "total_payload_bytes": 64
+    },
+    {
+      "algorithm": "mlkem_768",
+      "x25519_public_key_bytes": 0,
+      "x25519_public_key_count": 0,
+      "mlkem_public_key_bytes": 1184,
+      "mlkem_public_key_count": 1,
+      "mlkem_ciphertext_bytes": 1088,
+      "mlkem_ciphertext_count": 1,
+      "total_payload_bytes": 2272
+    },
+    {
+      "algorithm": "hybrid_x25519_mlkem_768",
+      "x25519_public_key_bytes": 32,
+      "x25519_public_key_count": 2,
+      "mlkem_public_key_bytes": 1184,
+      "mlkem_public_key_count": 1,
+      "mlkem_ciphertext_bytes": 1088,
+      "mlkem_ciphertext_count": 1,
+      "total_payload_bytes": 2336
+    }
+  ],
+  "warnings": [
+    "Timings include Python wrapper and installed cryptography backend overhead.",
+    "Measurements are serial, local, in-process cryptographic timings.",
+    "Payloads are cryptographic values for the simulated handshake, not network traffic.",
+    "No TLS, Envoy, certificate, Kubernetes, or network latency is measured.",
+    "Operating-system scheduling, CPU power policy, and background work can affect results."
+  ]
+}
