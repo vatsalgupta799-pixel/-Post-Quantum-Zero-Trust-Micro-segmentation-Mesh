@@ -1,0 +1,68 @@
+{
+  "classical_new": {
+    "exit": 0,
+    "status_lines": [
+      "Peer Temp Key: X25519, 253 bits",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384"
+    ]
+  },
+  "classical_reconnect": {
+    "exit": 0,
+    "status_lines": [
+      "Peer Temp Key: X25519, 253 bits",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384"
+    ]
+  },
+  "hybrid_new": {
+    "exit": 0,
+    "status_lines": [
+      "Negotiated TLS1.3 group: X25519MLKEM768",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384"
+    ]
+  },
+  "hybrid_reconnect": {
+    "exit": 0,
+    "status_lines": [
+      "Negotiated TLS1.3 group: X25519MLKEM768",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384"
+    ]
+  }
+}

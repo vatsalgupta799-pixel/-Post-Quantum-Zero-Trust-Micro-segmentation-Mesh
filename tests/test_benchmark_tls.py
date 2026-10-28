@@ -3,6 +3,7 @@ import math
 import pytest
 
 from scripts import benchmark_tls
+from scripts import verify_tls_group
 
 
 @pytest.mark.parametrize("port", [0, -1, 65536])
@@ -55,3 +56,27 @@ def test_analysis_rejects_failed_attempts(monkeypatch, tmp_path, capsys):
     assert status == 1
     assert "1 classical and 0 hybrid" in capsys.readouterr().err
     assert not (tmp_path / "report").exists()
+
+
+@pytest.mark.parametrize("name,verification_flag", [
+    ("localhost", "-verify_hostname"),
+    ("127.0.0.1", "-verify_ip"),
+])
+def test_openssl_requests_identity_and_chain_validation(monkeypatch, name, verification_flag):
+    from types import SimpleNamespace
+    captured = {}
+
+    def run(command, **kwargs):
+        captured["command"] = command
+        return SimpleNamespace(returncode=1, stdout="", stderr="verification failed")
+
+    monkeypatch.setattr(verify_tls_group, "_find_openssl", lambda path: "openssl")
+    monkeypatch.setattr(verify_tls_group.subprocess, "run", run)
+    result = verify_tls_group.verify_tls_group(
+        "classical", "127.0.0.1", 443, server_name=name, ca_file="ca.pem", use_openssl=True
+    )
+    command = captured["command"]
+    assert "-verify_return_error" in command
+    assert command[command.index(verification_flag) + 1] == name
+    assert command[command.index("-CAfile") + 1] == "ca.pem"
+    assert not result["connection_succeeded"]

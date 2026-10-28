@@ -1,3 +1,5 @@
+> **Week 2 update (28 October 2026):** Local OpenSSL positive and negative TLS checks succeeded; session freshness and a matched comparison remain unverified. Process-inclusive timings are not handshake latency. See the [current audit](project_audit_week2.md).
+
 > **Week 1 handover:** The local X25519 + ML-KEM-768 construction is unauthenticated educational code, not production TLS or mTLS. Both components are required and errors abort the exchange. Public results expose metadata only; internal educational code handles secrets, which Python cannot guarantee to erase. See the [reproduction record](reproducibility_checklist.md).
 
 > The public `perform_hybrid_exchange` result now contains metadata only. Internal educational and benchmark callers can still access secret bytes; its representation redacts secret fields. Python does not guarantee memory zeroization. See [the current audit](project_audit_week2.md).

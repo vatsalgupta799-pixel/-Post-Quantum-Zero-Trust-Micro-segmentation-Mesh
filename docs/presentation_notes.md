@@ -1,3 +1,5 @@
+> **Week 2 update (28 October 2026):** Local OpenSSL positive and negative TLS checks succeeded; session freshness and a matched comparison remain unverified. Process-inclusive timings are not handshake latency. See the [current audit](project_audit_week2.md).
+
 # Task 4 Presentation Notes
 
 ## Suggested 5–7 minute outline

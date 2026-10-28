@@ -1,3 +1,28 @@
+# Week 2 verification update — 28 October 2026
+
+**Readiness: partial.** Local TLS identity and negative checks now have direct evidence. The planned comparative benchmark and integrated mesh review remain blocked by session evidence and team inputs. This update supersedes inconsistent older sections, preserved below.
+
+- The current checkout at `db149c6` matched fetched `main`. The isolated Python 3.13.12 environment had cryptography 50.0.2, pytest 8.4.2 and OpenSSL CLI 4.1.0; environment checker 5/5 and `pip check` passed. Before code changes, `.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp .tmp/week2-baseline-20261028-new --tb=short`: 128 passed in 1.14 s, no reported failures, skips or warnings.
+- After code and documentation updates, `.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp .tmp/week2-final-20261028-new --tb=short`: **130 passed in 1.29 s**, no failures, skips or reported warnings. `git diff --check` passed. Both runs used new nonexistent pytest base directories.
+- The local OpenSSL 4.1.0 loopback server negotiated TLS 1.3, a trusted localhost certificate, and respectively X25519 and X25519MLKEM768. Wrong hostname, unrelated trust anchor and hybrid against an X25519-only server each failed; their output identifies hostname mismatch, self-signed certificate and handshake failure respectively. [Sanitized evidence](../evidence/week2-live-validation-20261028/results.json) includes the outcomes and configuration. This is not Envoy or mTLS evidence.
+- [Timing diagnostics](../evidence/week2-live-validation-20261028/timing-milestones.json) show verified group lines 26.8–30.9 ms after process launch, `DONE` around 1,026–1,031 ms, and exit around 1,030–1,036 ms in three runs. Separate TCP probes were 10–16 ms and `openssl version` processes 20–21 ms. These are not additive and the delay cause is unknown. The benchmark timer includes process startup, TCP, TLS, certificate verification, output parsing and shutdown; it is not pure handshake latency.
+- Normal OpenSSL output displayed `New` in both modes, but `-reconnect` also yielded only `New` on this server; no resumed control was observed. The harness still uses brief output and records reuse as unknown. Do not store normal full output because it may contain session secrets. A meaningful comparison requires verified new/reused telemetry or a validated alternative; no 1,000-sample comparison was run and no new comparison is claimed.
+- Recalculation of the three-per-mode historical smoke rows reproduced their p50/p95/p99, sample standard deviation, and absolute and percentage differences; they remain too few and predate hostname verification. Statistics now report sample standard deviation as unavailable for a single sample rather than zero. Tests were added for hostname and IP verification options.
+
+| Area | Current status | Next action |
+| --- | --- | --- |
+| TLS identity and groups | Both local positives and three negatives observed | Repeat against team-owned trusted Envoy endpoint |
+| Session evidence | Blocked: resumed control not reproduced | Obtain observed new and resumed controls, implement safe per-sample telemetry and reject unknown/resumed cases |
+| Timing | Process-inclusive cost diagnosed to output milestones; cause unresolved | Investigate shutdown and validate a comparable boundary, or retain labelled process duration |
+| Comparison | Not collected | After session validation, run matched modes, preserve attempts and repeat reversed order; prefer 1,000 per mode |
+| Integration | Partial historical evidence | Obtain exact team-owned inputs below and cross-check run IDs |
+
+Person 1: pinned PQC-capable Envoy build, config, endpoint, trust material and direct group logs. Person 2: OPA policy and Envoy ext_authz configuration with allow/deny results. Person 3: workload/sidecar manifests, certificates/trust and connectivity/isolation evidence. Person 5: run-linked PCAP, capture procedure, timestamps, endpoints and group telemetry. Historical certificate-authentication and Windows-to-Kali files are separate observations, not proof of the complete mesh. No PCAP was found under evidence, results or kubernetes; authorization overhead must be measured separately.
+
+Final readiness: demonstrate the local verifier with its limitations; do not present a process duration as handshake latency or claim an integrated Envoy comparison. The next review actions are session-control validation, matched data collection, and team evidence coordination.
+
+---
+
 # Week 1 handover update — 28 October 2026
 
 This update supersedes older Week 1 environment and test claims below. It records local verification in the `main-checkout`; no teammate infrastructure or historical result was modified.

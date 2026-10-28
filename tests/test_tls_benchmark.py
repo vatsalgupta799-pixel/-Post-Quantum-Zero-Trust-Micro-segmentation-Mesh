@@ -123,7 +123,8 @@ class TestComputeStatistics:
         stats = benchmark_tls.compute_statistics([42.0])
         assert stats["count"] == 1
         assert stats["mean_ms"] == pytest.approx(42.0)
-        assert stats["stddev_ms"] == pytest.approx(0.0)
+        assert stats["stddev_ms"] is None
+        assert analyze_tls.compute_statistics([42.0])["stddev_ms"] is None
         assert stats["p50_ms"] == pytest.approx(42.0)
 
     def test_empty_returns_none_values(self):

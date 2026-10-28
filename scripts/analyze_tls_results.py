@@ -69,7 +69,7 @@ def compute_statistics(latencies_ms: Sequence[float]) -> dict:
     return {
         "count": len(values),
         "mean_ms": statistics.mean(values),
-        "stddev_ms": statistics.stdev(values) if len(values) > 1 else 0.0,
+        "stddev_ms": statistics.stdev(values) if len(values) > 1 else None,
         "min_ms": min(values),
         "max_ms": max(values),
         "p50_ms": percentile_linear(values, 50),
