@@ -18,8 +18,8 @@ from src.hybrid_exchange import (
     HYBRID_PROTOCOL_ID,
     MLKEM768_ALGORITHM_ID,
     X25519_ALGORITHM_ID,
-    HybridExchangeResult,
-    perform_hybrid_exchange,
+    _HybridExchangeSecrets,
+    _perform_hybrid_exchange as perform_hybrid_exchange,
 )
 
 
@@ -82,7 +82,7 @@ def _validate_protocol_version(expected_protocol_version: str) -> None:
         )
 
 
-def _verify_exchange_result(result: HybridExchangeResult) -> None:
+def _verify_exchange_result(result: _HybridExchangeSecrets) -> None:
     """Check all component agreements without exposing their values."""
 
     if result.x25519_shared_secret_a != result.x25519_shared_secret_b:
@@ -144,17 +144,17 @@ def establish_hybrid_session(
         raise HybridIntegrationError(
             UNSUPPORTED_ALGORITHM,
             "required cryptographic algorithm is unavailable",
-        ) from error
+        ) from None
     except (RuntimeError, TypeError, ValueError) as error:
         raise HybridIntegrationError(
             KEY_ESTABLISHMENT_FAILED,
             "hybrid key establishment failed",
-        ) from error
+        ) from None
     except Exception as error:
         raise HybridIntegrationError(
             INTERNAL_ERROR,
             "unexpected hybrid integration failure",
-        ) from error
+        ) from None
 
     return HybridSessionResult(
         protocol_version=PROTOCOL_VERSION,

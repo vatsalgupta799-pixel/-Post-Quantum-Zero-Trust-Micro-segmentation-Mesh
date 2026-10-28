@@ -92,7 +92,7 @@ def _verify_with_python_ssl(
         "negotiated_group_verified": False,
         "certificate_verified": False,
         "connection_succeeded": False,
-        "new_handshake": True,
+        "new_handshake": None,
         "error": None,
         "openssl_backend": ssl.OPENSSL_VERSION,
     }
@@ -196,7 +196,7 @@ def _verify_with_openssl(
         "negotiated_group_verified": False,
         "certificate_verified": False,
         "connection_succeeded": False,
-        "new_handshake": True,
+        "new_handshake": None,
         "error": None,
         "openssl_path": openssl_path,
     }
@@ -265,7 +265,7 @@ def _verify_with_openssl(
         ):
             result["certificate_verified"] = True
 
-        if proc.returncode == 0 and re.search(r"CONNECTION ESTABLISHED|CONNECTED", output, re.IGNORECASE):
+        if proc.returncode == 0 and re.search(r"CONNECTION ESTABLISHED", output, re.IGNORECASE):
             result["connection_succeeded"] = True
         elif proc.returncode != 0:
             result["error"] = f"openssl s_client exited with status {proc.returncode}"
@@ -349,9 +349,9 @@ def print_verification_result(result: dict) -> None:
         print(f"\n[ERROR] {result['error']}")
 
     # Final verdict
-    if result.get("negotiated_group_verified") and result.get("connection_succeeded"):
+    if result.get("negotiated_group_verified") and result.get("connection_succeeded") and result.get("certificate_verified"):
         tls_ver = result.get("tls_version", "")
-        if "1.3" in str(tls_ver):
+        if tls_ver == "TLSv1.3":
             print(f"\n[PASS] {mode.upper()}: TLS 1.3 + {expected} VERIFIED")
         else:
             print(f"\n[WARN] Connection succeeded but TLS version is {tls_ver}, not 1.3")
@@ -439,9 +439,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Verification saved to {args.output_json}")
 
     # Exit 0 only if the group was independently verified
-    if result.get("negotiated_group_verified") and result.get("connection_succeeded"):
+    if result.get("negotiated_group_verified") and result.get("connection_succeeded") and result.get("certificate_verified"):
         tls_ver = str(result.get("tls_version", ""))
-        if "1.3" in tls_ver:
+        if tls_ver == "TLSv1.3":
             return 0
     return 1
 

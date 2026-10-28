@@ -1,6 +1,6 @@
 """Benchmark real TLS 1.3 connection-establishment latency.
 
-This script measures fresh TLS handshake latency for either X25519
+This script measures process-inclusive connection duration for either X25519
 (classical) or X25519MLKEM768 (hybrid) key exchange. Every sample
 uses a new TCP+TLS connection, and the script verifies the negotiated
 group before starting measurements.
@@ -81,7 +81,7 @@ class TLSSample:
     tls_version: str
     negotiated_group: str
     certificate_verified: bool
-    session_reused: bool
+    session_reused: bool | None
     error_type: str
 
     def csv_row(self) -> dict[str, str]:
@@ -159,7 +159,7 @@ def _measure_single_connection(
         tls_version=tls_version,
         negotiated_group=negotiated_group,
         certificate_verified=bool(verification.get("certificate_verified")),
-        session_reused=False,
+        session_reused=None,
         error_type=error,
     )
 
@@ -318,13 +318,14 @@ def run_tls_benchmark(
             + "\n".join(f"  • {issue}" for issue in issues)
         )
 
-    # --- Warm-up (not recorded) ---
+    # --- Warm-up (excluded from statistics, retained in metadata) ---
     print(f"[INFO] Warming up with {warmup} connections...")
+    warmup_samples = []
     for i in range(warmup):
-        _ = _measure_single_connection(
+        warmup_samples.append(_measure_single_connection(
             host, port, effective_sni, timeout, mode, -(warmup - i), effective_run_id,
             ca_file, client_cert, client_key, openssl_path,
-        )
+        ))
 
     # --- Measured connections ---
     print(f"[INFO] Measuring {iterations} connections...")
@@ -358,6 +359,8 @@ def run_tls_benchmark(
         "ca_file": ca_file or "system_default",
         "client_cert_used": bool(client_cert),
         "warmup_connections": warmup,
+        "warmup_attempts": [sample.csv_row() for sample in warmup_samples],
+        "session_evidence": "Unknown: fresh process, no session input and -no_ticket constrain resumption but do not independently prove it.",
         "measured_connections": iterations,
         "timeout_seconds": timeout,
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
@@ -371,6 +374,9 @@ def run_tls_benchmark(
         "success_rate": len(successful) / len(samples) if samples else 0,
         "statistics": compute_statistics(success_latencies),
         "tls_client": "openssl_s_client",
+        "tls_server_version": "unknown; supply server provenance separately",
+        "server_configuration": "unknown; supply server provenance separately",
+        "network_path": "unspecified; document endpoint and network path separately",
         "openssl_path": openssl_path or "PATH:openssl",
         "connection_type": "fresh_process_tcp_tls",
         "session_resumption_policy": "new openssl process per sample; -no_ticket; no -sess_in",

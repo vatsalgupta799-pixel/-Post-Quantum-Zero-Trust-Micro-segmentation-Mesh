@@ -1,3 +1,5 @@
+> The public `perform_hybrid_exchange` result now contains metadata only. Internal educational and benchmark callers can still access secret bytes; its representation redacts secret fields. Python does not guarantee memory zeroization. See [the current audit](project_audit_week2.md).
+
 # Security Limitations and Deployment Boundary
 
 ## Educational-prototype status
@@ -62,7 +64,7 @@ that a ciphertext is authentic.
 
 ## Key handling and lifecycle limits
 
-The low-level simulated exchange result contains shared secrets and session
+The internal simulated exchange result contains shared secrets and session
 keys so unit tests can verify agreement. It is not a general-purpose
 application API. Other code should use `src.integration.establish_hybrid_session`,
 which exposes only non-secret metadata.

@@ -630,3 +630,26 @@ class TestOutputSchemaReproducibility:
         required_keys = {"count", "mean_ms", "stddev_ms", "min_ms", "max_ms",
                          "p50_ms", "p95_ms", "p99_ms"}
         assert required_keys.issubset(set(stats.keys()))
+
+
+def test_tcp_connected_is_not_completed_tls(monkeypatch):
+    from types import SimpleNamespace
+    monkeypatch.setattr(verify_tls, "_find_openssl", lambda path: "openssl")
+    monkeypatch.setattr(verify_tls.subprocess, "run", lambda *a, **kw: SimpleNamespace(
+        stdout="CONNECTED\nProtocol version: TLSv1.3\nVerification: OK\nPeer Temp Key: X25519, 253 bits\n", stderr="", returncode=0))
+    assert not verify_tls.verify_tls_group("classical", "localhost", 443, use_openssl=True)["connection_succeeded"]
+
+
+def test_cli_requires_certificate_verification(monkeypatch):
+    monkeypatch.setattr(verify_tls, "verify_tls_group", lambda **kw: {
+        "negotiated_group_verified": True, "connection_succeeded": True,
+        "certificate_verified": False, "tls_version": "TLSv1.3"})
+    assert verify_tls.main(["--mode", "classical", "--host", "localhost", "--port", "443"]) == 1
+
+
+def test_unknown_session_is_not_independent_freshness_evidence():
+    row = {"mode": "classical", "attempt": "1", "success": "True",
+           "tls_version": "TLSv1.3", "negotiated_group": "X25519",
+           "certificate_verified": "True", "session_reused": "None"}
+    with pytest.raises(ValueError, match="fresh session"):
+        analyze_tls.validate_verified_samples([row], "classical", "X25519")

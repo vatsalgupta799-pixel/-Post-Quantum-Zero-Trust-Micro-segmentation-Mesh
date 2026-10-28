@@ -1,3 +1,5 @@
+> **Current rectification update (28 October 2026):** See [the current audit](project_audit_week2.md) for superseding evidence. The OpenSSL timing includes process startup, TCP, TLS, verification, shutdown and parsing; it is not isolated handshake latency. Session reuse is now recorded as unknown and the analyzer rejects it until independent freshness evidence is available. Local live TLS checks and a new matched comparison are blocked by loopback connection permissions. Older smoke data is historical and cannot establish hostname verification or a defensible tail-latency comparison. Use new output directories and a fresh nonexistent pytest basetemp.
+
 # Week 2: Real TLS Handshake Benchmarking Guide
 
 ## Purpose
@@ -110,7 +112,7 @@ python scripts/benchmark_tls.py --mode classical --host 127.0.0.1 --port 18443 -
 ```
 
 Inspect `raw.csv` and `verification.json`. Every successful row must show the
-actual group, `certificate_verified=True`, and `session_reused=False`.
+actual group and `certificate_verified=True`. `session_reused` is currently unknown; the analyzer refuses these rows until independent session telemetry is implemented. Do not substitute an assigned boolean.
 
 ### Step 4: Run the full experiment
 
@@ -158,7 +160,7 @@ resumption.
 
 ## Analyze Raw Data
 
-Pass verified raw CSV files to the analysis script:
+Once independent session telemetry is implemented and verified, pass verified raw CSV files to the analysis script. This example is currently blocked:
 
 ```powershell
 python scripts/analyze_tls_results.py --classical-csv results/week2/classical-verified/raw.csv --hybrid-csv results/week2/hybrid-verified/raw.csv --output-dir results/week2/comparison-new

@@ -1,74 +1,45 @@
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from pqcrypto.kem import ml_kem_768
 import os
+import sys
+from pathlib import Path
+
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.hybrid_exchange import _perform_hybrid_exchange as perform_hybrid_exchange
 
 
 def main():
-    print("=== Hybrid ECDH + ML-KEM-768 Demo ===")
+    print("=== Hybrid X25519 + ML-KEM-768 Demo ===")
 
-    # Receiver creates classical ECDH and post-quantum ML-KEM keys.
-    receiver_ec_private = ec.generate_private_key(ec.SECP256R1())
-    receiver_ec_public = receiver_ec_private.public_key()
-    receiver_kem_public, receiver_kem_secret = ml_kem_768.keygen()
+    # Reuse the current transcript-bound X25519 + ML-KEM-768 workflow.
+    exchange = perform_hybrid_exchange()
 
-    # Sender creates its own ECDH key pair.
-    sender_ec_private = ec.generate_private_key(ec.SECP256R1())
-    sender_ec_public = sender_ec_private.public_key()
-
-    # Classical shared secret: ECDH.
-    sender_ec_secret = sender_ec_private.exchange(
-        ec.ECDH(), receiver_ec_public
+    print(
+        "X25519 shared secrets match:",
+        exchange.x25519_shared_secret_a == exchange.x25519_shared_secret_b,
     )
-    receiver_ec_secret = receiver_ec_private.exchange(
-        ec.ECDH(), sender_ec_public
+    print(
+        "ML-KEM shared secrets match:",
+        exchange.mlkem_shared_secret_a == exchange.mlkem_shared_secret_b,
     )
-
-    # Post-quantum shared secret: ML-KEM-768.
-    ciphertext, sender_kem_secret = ml_kem_768.encaps(
-        receiver_kem_public
+    print(
+        "Hybrid session keys match:",
+        exchange.session_key_a == exchange.session_key_b,
     )
-    receiver_kem_secret = ml_kem_768.decaps(
-        receiver_kem_secret, ciphertext
-    )
-
-    # Combine both secrets and derive a 256-bit session key.
-    if sender_ec_secret != receiver_ec_secret:
-        raise RuntimeError("ECDH secrets do not match")
-    if sender_kem_secret != receiver_kem_secret:
-        raise RuntimeError("ML-KEM secrets do not match")
-
-    combined_sender = sender_ec_secret + sender_kem_secret
-    combined_receiver = receiver_ec_secret + receiver_kem_secret
-    salt = os.urandom(32)
-
-    def derive_key(secret):
-        return HKDF(
-            algorithm=hashes.SHA256(),
-            length=32,
-            salt=salt,
-            info=b"Post-Quantum Zero-Trust Hybrid Session v1",
-        ).derive(secret)
-
-    sender_key = derive_key(combined_sender)
-    receiver_key = derive_key(combined_receiver)
-
-    print("ECDH shared secrets match:", sender_ec_secret == receiver_ec_secret)
-    print("ML-KEM shared secrets match:", sender_kem_secret == receiver_kem_secret)
-    print("Hybrid session keys match:", sender_key == receiver_key)
 
     # Demonstrate authenticated encryption with the derived key.
     nonce = os.urandom(12)
     message = b"Zero-Trust hybrid session established"
-    encrypted = AESGCM(sender_key).encrypt(nonce, message, None)
-    decrypted = AESGCM(receiver_key).decrypt(nonce, encrypted, None)
+    encrypted = AESGCM(exchange.session_key_a).encrypt(nonce, message, None)
+    decrypted = AESGCM(exchange.session_key_b).decrypt(nonce, encrypted, None)
 
     print("AES-GCM message recovered:", decrypted == message)
     print("Recovered message:", decrypted.decode())
-    print("ML-KEM ciphertext bytes:", len(ciphertext))
-    print("Hybrid key bytes:", len(sender_key))
+    print("AES-GCM ciphertext bytes:", len(encrypted))
+    print("Hybrid session key length:", len(exchange.session_key_a), "bytes")
 
 
 if __name__ == "__main__":

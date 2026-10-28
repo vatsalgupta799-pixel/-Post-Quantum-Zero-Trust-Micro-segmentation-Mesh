@@ -24,10 +24,14 @@ class TestHybridKeyExchange(unittest.TestCase):
         )
 
         output = result.stdout
-        self.assertIn("ECDH shared secrets match: True", output)
+        self.assertIn("X25519 shared secrets match: True", output)
         self.assertIn("ML-KEM shared secrets match: True", output)
         self.assertIn("Hybrid session keys match: True", output)
         self.assertIn("AES-GCM message recovered: True", output)
+        self.assertIn("Recovered message: Zero-Trust hybrid session established", output)
+        self.assertIn("Hybrid session key length: 32 bytes", output)
+        self.assertNotIn("P-256", output)
+        self.assertNotIn("pqcrypto", output)
 
     def test_aes_gcm_rejects_tampered_ciphertext(self):
         key = AESGCM.generate_key(bit_length=256)

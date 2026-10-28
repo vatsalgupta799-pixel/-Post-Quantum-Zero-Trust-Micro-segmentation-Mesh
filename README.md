@@ -1,3 +1,5 @@
+> **Current Week 2 status:** See [the audit update](docs/project_audit_week2.md). Local live TLS verification and a matched comparison remain blocked; the process-inclusive smoke measurements are not handshake latency. Session freshness is unknown.
+
 # Post-Quantum Zero-Trust Microsegmentation Mesh
 
 ## Task 4 — Hybrid Key Exchange Demonstration
@@ -294,8 +296,10 @@ python scripts\verify_tls_group.py --mode classical --host HOST --port 8443 --se
 python scripts\verify_tls_group.py --mode hybrid --host HOST --port 8443 --server-name HOST --ca-file /path/to/ca.pem --use-openssl --openssl-path /path/to/openssl
 python scripts\benchmark_tls.py --mode classical --host HOST --port 8443 --server-name HOST --ca-file /path/to/ca.pem --openssl-path /path/to/openssl --warmup 100 --iterations 1000 --timeout 10 --output-dir results\week2\classical-verified
 python scripts\benchmark_tls.py --mode hybrid --host HOST --port 8443 --server-name HOST --ca-file /path/to/ca.pem --openssl-path /path/to/openssl --warmup 100 --iterations 1000 --timeout 10 --output-dir results\week2\hybrid-verified
-python scripts\analyze_tls_results.py --classical-csv results\week2\classical-verified\raw.csv --hybrid-csv results\week2\hybrid-verified\raw.csv --output-dir results\week2\comparison-new
+
 ~~~
+
+The analyzer cannot accept new runs until independently observed session freshness is implemented; the benchmark commands above require a verified endpoint and were not validated in this environment.
 
 For mTLS, provide the approved --client-cert and --client-key values to both
 modes. Do not disable certificate validation, and stop if verification does
@@ -411,7 +415,7 @@ hybrid-key-exchange/
 │   ├── plot_benchmarks.py       # Day 5 CSV chart generator
 │   ├── local_tls_server.py      # Week 2 ephemeral local TLS 1.3 server
 │   ├── verify_tls_group.py      # Week 2 TLS group verification
-│   ├── benchmark_tls.py         # Week 2 TLS handshake benchmark harness
+│   ├── benchmark_tls.py         # Week 2 process-inclusive TLS benchmark harness
 │   └── analyze_tls_results.py   # Week 2 comparative analysis and charts
 ├── docs/
 │   ├── architecture.md
@@ -564,7 +568,7 @@ Planned next steps:
 ## Limitations
 
 This repository does not implement post-quantum mTLS, certificate
-authentication, symmetric encryption, or service-mesh deployment. The Day 4
+authentication or service-mesh deployment. A separate local AES-GCM demonstration exists. The Day 4
 hybrid flow establishes a matching session key in a local simulation, but it
 does not authenticate services or provide a complete secure channel.
 `cryptography`'s low-level asymmetric APIs require careful protocol design,
