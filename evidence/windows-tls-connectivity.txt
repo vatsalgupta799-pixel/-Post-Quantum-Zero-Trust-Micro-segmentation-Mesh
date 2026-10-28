@@ -1,0 +1,25 @@
+Windows-to-Kali TLS Connectivity Test
+=====================================
+
+Client:
+- Operating system reported by PowerShell: Windows 10 Home Single Language, version 2009, build 26300
+- curl: 8.21.0
+- TLS backend: Schannel
+
+Server:
+- Envoy running in Kali Linux
+- Kali IP: 192.168.162.128
+- Test port: TCP/8444
+- Listener: 0.0.0.0:8444
+
+Observed results:
+- Windows Test-NetConnection: TcpTestSucceeded = True
+- curl HTTPS request: HTTP/1.1 200 OK
+- Response body: PQC TLS test endpoint
+
+Limitations:
+- This confirms Windows-to-Kali TLS connectivity.
+- The negotiated TLS key-exchange group was not verified from the Windows client.
+- Do not interpret this result as proof that Windows negotiated X25519MLKEM768.
+- Hybrid key exchange was independently verified using the Kali OpenSSL client and Envoy BoringSSL server.
+
