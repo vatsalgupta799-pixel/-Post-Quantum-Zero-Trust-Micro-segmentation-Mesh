@@ -1,0 +1,269 @@
+# Week 2 TLS Handshake Benchmark Report
+
+## Status
+
+**PARTIALLY COMPLETE — LOCAL HYBRID TLS VERIFIED; FULL BENCHMARK PENDING**
+
+Review on 28 October 2026: the stored smoke runs verified the certificate
+chain but the client did not check the server name. The harness now checks
+both the chain and hostname (or IP address), requires an exact group match,
+and rejects a nonzero client exit. These changes have passed unit tests but
+could not be revalidated against a live server here: the loopback connection
+attempt failed before TLS negotiation. No new handshake results were created.
+The previous smoke runs are historical capability evidence, not proof that
+the strengthened verification works end to end.
+
+The stored 1,000-sample classical data set is a useful configuration-restricted
+TLS baseline, but it lacks direct negotiated-group telemetry and is not a
+verified comparison input. Python's OpenSSL 3.0.18 backend still cannot
+configure the hybrid group, but an installed OpenSSL 4.1.0 CLI can. The
+current harness uses that CLI for direct per-sample group and certificate
+verification rather than silently falling back to a classical group.
+
+## A. Executive Summary
+
+This report compares TLS 1.3 connection-establishment latency between
+classical X25519 and hybrid X25519MLKEM768 key exchange. The historical
+classical baseline is retained but not directly verified. A new local
+OpenSSL 4.1.0 smoke test verifies that both TLS named groups can be measured.
+
+**Stored classical configuration baseline (X25519):** 1,000 fresh TLS 1.3
+connections over localhost, 100% success rate. Median (p50) latency:
+15.36 ms. The p95 latency is 22.05 ms and the p99 is 28.32 ms. These values
+are not a verified classical-versus-hybrid comparison because the group was
+not directly observed.
+
+**Verified local smoke test:** OpenSSL 4.1.0 was used for both a loopback TLS
+server and a fresh `openssl s_client` process per connection. All three
+classical samples directly reported `X25519`; all three hybrid samples
+directly reported `X25519MLKEM768`; TLS 1.3 and certificate verification
+succeeded on every attempt. The smoke-only comparison observed p50 values of
+1042.3057 ms (classical) and 1066.1231 ms (hybrid), a 23.8174 ms / 2.29%
+difference. This is not a performance conclusion: the sample size is three
+and timing includes OpenSSL process start-up. Raw data, metadata, verification
+outputs, and charts are preserved in `results/week2/openssl41-local-smoke/`.
+
+## B. Experimental Setup
+
+### Hardware and Software
+
+| Item | Value |
+| --- | --- |
+| OS | Windows 11 |
+| CPU | Intel64 Family 6 Model 165 Stepping 2, GenuineIntel |
+| Architecture | AMD64 |
+| Python | 3.13.12 (MSC v.1944 64 bit) |
+| OpenSSL backend | OpenSSL 3.0.18 30 Sep 2025 |
+| cryptography | 50.0.2 |
+| OpenSSL CLI used for verified smoke test | OpenSSL 4.1.0 (23 Oct 2026) |
+| Envoy binary | Not available |
+| Docker | Not available |
+
+### Test Configuration
+
+| Parameter | Classical | Hybrid |
+| --- | --- | --- |
+| TLS version | TLS 1.3 | TLS 1.3 |
+| Expected group | X25519 | X25519MLKEM768 |
+| Server | Python ssl (localhost:18443) | Blocked |
+| Certificate | Self-signed ECDSA P-256 | N/A |
+| Certificate validation | Enabled | N/A |
+| mTLS | No | N/A |
+| Warm-up connections | 100 | N/A |
+| Measured connections | 1,000 | N/A |
+| Connection reuse | None (fresh TCP+TLS per sample) | N/A |
+| Timeout | 10 s | N/A |
+| Concurrency | 1 (serial) | N/A |
+| Network path | Loopback (127.0.0.1) | N/A |
+| Same machine (client/server) | Yes | N/A |
+
+### Timing Boundary
+
+For the historical Python baseline, connection-establishment latency was measured from immediately before
+`socket.create_connection()` to immediately after `ctx.wrap_socket()`
+completes using `time.perf_counter_ns()`. This includes TCP setup and the
+full TLS 1.3 handshake but not application data. The same boundary would be
+used for both modes. The later OpenSSL smoke runs instead timed process startup,
+TCP, TLS verification, and process exit; the two timing methods cannot be
+compared.
+
+## C. Negotiation Verification
+
+### Classical — X25519
+
+The Python ssl context was restricted to X25519 only via
+`ctx.set_ecdh_curve('X25519')`; all 1,000 connections completed with
+`tls_sock.version()` returning `'TLSv1.3'` and cipher suite
+`TLS_AES_256_GCM_SHA384`.
+
+**Limitation:** Python's `ssl.SSLSocket` does not expose a negotiated-group
+API. This is configuration evidence, not a direct report of the group selected
+by the server. The historical data remains preserved, but it must not be
+presented as verified named-group evidence.
+
+### Hybrid — Python Backend Limitation and OpenSSL 4.1 Verification
+
+**Python backend cannot verify hybrid.** `ctx.set_ecdh_curve('X25519MLKEM768')` raises
+`ssl.SSLError: unknown elliptic curve name 'X25519MLKEM768'`. The
+benchmark harness detects this during prerequisite checks and refuses to
+start, exiting with code 1.
+
+Historical evidence in `evidence/envoy-pqc-build-verification.txt` confirms
+that an Envoy 1.41.0-dev build with BoringSSL successfully negotiated
+X25519MLKEM768 on a different machine. That binary and configuration are not
+available here.
+
+The local OpenSSL 4.1.0 smoke test now provides current, direct evidence:
+`openssl s_client` reported `Protocol version: TLSv1.3`, `Verification: OK`,
+and `Negotiated TLS1.3 group: X25519MLKEM768` for the hybrid server. The
+matching classical server reported `Peer Temp Key: X25519, 253 bits`.
+
+## D. Results
+
+### Classical TLS (X25519) — 1,000-Sample Configuration Baseline
+
+| Metric | Value |
+| --- | --- |
+| Total attempts | 1,000 |
+| Successful handshakes | 1,000 |
+| Failed handshakes | 0 |
+| Success rate | 100.0% |
+| p50 latency (ms) | 15.3588 |
+| p95 latency (ms) | 22.0534 |
+| p99 latency (ms) | 28.3162 |
+| Mean latency (ms) | 12.5092 |
+| Standard deviation (ms) | 7.3165 |
+| Minimum latency (ms) | 1.0869 |
+| Maximum latency (ms) | 33.0668 |
+
+### Prior Python-Backend Hybrid Attempt — Blocked
+
+| Metric | Value |
+| --- | --- |
+| Total attempts | Unavailable |
+| Successful handshakes | Unavailable |
+| Failed handshakes | Unavailable |
+| Success rate | Unavailable |
+| All latency percentiles | Unavailable |
+
+### OpenSSL 4.1 Local Smoke Test — Directly Verified, 3 Samples per Mode
+
+| Metric | Classical X25519 | Hybrid X25519MLKEM768 |
+| --- | ---: | ---: |
+| Successful / attempted | 3 / 3 | 3 / 3 |
+| TLS version | TLSv1.3 | TLSv1.3 |
+| Certificate verification | 3 / 3 | 3 / 3 |
+| p50 connection-establishment (ms) | 1042.3057 | 1066.1231 |
+| p95 connection-establishment (ms) | 1054.0361 | 1088.6357 |
+| p99 connection-establishment (ms) | 1055.0788 | 1090.6368 |
+
+The client used a new OpenSSL process and `-no_ticket` for every sample. The
+values include process start-up, TCP setup, handshake, and verification. They
+are capability evidence only; use matched 100+ (preferably 1,000) sample runs
+on the team endpoint before reporting any overhead conclusion.
+
+## E. Comparative Analysis
+
+The three-sample smoke comparison is shown above; it is too small and
+process-dominated to support a performance conclusion. No controlled full
+comparison has been obtained.
+The planned comparison metrics are:
+
+- Absolute difference in p50, p95, and p99 latency (ms)
+- Relative overhead (%) = ((hybrid − classical) / classical) × 100
+- Success-rate difference
+
+The analysis script (`scripts/analyze_tls_results.py`) is ready to process
+both CSV files when hybrid data becomes available.
+
+## F. Network and Payload Analysis
+
+No packet capture was performed. No handshake-size measurements are
+available. Theoretical key-share sizes from the protocol specifications:
+
+| Component | X25519 | X25519MLKEM768 |
+| --- | --- | --- |
+| Client key share | 32 bytes | 32 + 1,184 = 1,216 bytes |
+| Server key share | 32 bytes | 32 + 1,088 = 1,120 bytes |
+
+These are protocol sizes, **not observed network traffic**. Actual TLS
+handshake messages include headers, extensions, certificates, and other
+fields that are not captured here.
+
+## G. Limitations
+
+1. **Python SSL remains unsupported.** The interpreter's OpenSSL 3.0.18 does
+   not support X25519MLKEM768. The verified smoke run uses an external
+   OpenSSL 4.1.0 executable instead.
+2. **Loopback network.** All measurements use 127.0.0.1, eliminating real
+   network latency, jitter, and packet loss.
+3. **Classical group is unverified.** Python did not expose direct named-group
+   telemetry and the run predates the strict per-sample OpenSSL verification
+   mode.
+4. **Strict-run timing scope differs.** New verified runs measure
+   connection-establishment through a new `openssl s_client` process, including
+   client startup and TCP setup; historical Python timings are not comparable.
+5. **Self-signed certificate.** The test certificate has no CA chain
+   traversal, reducing TLS processing compared to production.
+6. **Serial single-threaded.** No concurrency experiment was run.
+7. **No TLS session resumption test.** All connections are full handshakes.
+8. **CPU contention.** Client and server share the same machine and CPU.
+9. **No Envoy, Kubernetes, or production endpoint.**
+
+## H. Reproduction Instructions
+
+### Run the classical benchmark
+
+```powershell
+# Terminal 1: Start the local TLS server
+python scripts/local_tls_server.py --port 18443 --group X25519 --max-connections 1200
+
+# Terminal 2: Run the benchmark
+$openssl = "C:\path\to\compatible-openssl.exe"
+python scripts/benchmark_tls.py --mode classical --host 127.0.0.1 --port 18443 --server-name localhost --ca-file .tmp/tls-test/cert.pem --openssl-path $openssl --warmup 100 --iterations 1000 --timeout 10 --output-dir results/week2/classical-verified
+```
+
+### Attempt the hybrid benchmark (will fail on OpenSSL 3.0.x)
+
+```powershell
+python scripts/benchmark_tls.py --mode hybrid --host HOST --port 8443 --server-name HOST --ca-file /path/to/ca.pem --openssl-path $openssl --warmup 100 --iterations 1000 --timeout 10 --output-dir results/week2/hybrid-verified
+```
+
+### Analyze both results (when hybrid data is available)
+
+```powershell
+python scripts/analyze_tls_results.py --classical-csv results/week2/classical-verified/raw.csv --hybrid-csv results/week2/hybrid-verified/raw.csv --output-dir results/week2/comparison-new
+```
+
+### Run the tests
+
+```powershell
+python -m pytest tests/test_tls_benchmark.py -v
+```
+
+## I. Conclusion
+
+The stored classical TLS 1.3 baseline has 1,000 fresh-connection samples over
+loopback, p50 15.36 ms, and a 100% success rate. It is not direct proof of
+the negotiated X25519 group and must not be compared with a future verified
+hybrid run.
+
+The hybrid experiment can now run through the external OpenSSL 4.1.0 CLI,
+which directly verified X25519MLKEM768 in the local smoke test. Python's own
+OpenSSL 3.0.18 backend remains unsuitable for the hybrid group.
+
+**What this experiment establishes:**
+- A preserved configuration-restricted TLS 1.3 baseline on this hardware and
+  software configuration.
+- A fail-closed harness that requires OpenSSL-reported TLS 1.3, certificate,
+  and named-group evidence for every new sample.
+- A local, directly verified X25519MLKEM768 capability smoke test.
+
+**What it does not establish:**
+- Any comparison between classical and hybrid TLS performance.
+- Network-realistic latency (loopback only).
+- The performance of Envoy, BoringSSL, Kubernetes, or production
+  infrastructure.
+
+The correct status remains:
+**PARTIALLY COMPLETE — LOCAL HYBRID TLS VERIFIED; FULL BENCHMARK PENDING**.

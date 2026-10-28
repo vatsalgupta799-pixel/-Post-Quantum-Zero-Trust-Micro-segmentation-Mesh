@@ -1,0 +1,19 @@
+TLS Benchmark Summary — CLASSICAL
+==================================================
+Run ID:          local-classical-openssl41-smoke
+Target:          127.0.0.1:18445
+Expected group:  X25519
+Warmup:          1
+Measured:        3
+Successful:      3
+Failed:          0
+Success rate:    100.0%
+
+Latency Statistics (ms):
+  p50:   1042.3057
+  p95:   1054.03612
+  p99:   1055.078824
+  mean:  1044.8878666666667
+  stdev: 9.429547434704098
+  min:   1037.0184
+  max:   1055.3395
