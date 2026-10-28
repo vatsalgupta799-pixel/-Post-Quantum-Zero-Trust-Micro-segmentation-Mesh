@@ -10,7 +10,7 @@ from src.hybrid_exchange import (
     HYBRID_HKDF_CONTEXT,
     build_handshake_transcript,
     derive_hybrid_session_key,
-    perform_hybrid_exchange,
+    _perform_hybrid_exchange as perform_hybrid_exchange,
 )
 from src.pqc_mlkem import (
     decapsulate_shared_secret,
@@ -182,3 +182,18 @@ def test_hybrid_demo_output_is_sanitized(capsys: pytest.CaptureFixture[str]) -> 
         "\n"
         "Integration demonstration completed successfully.\n"
     )
+
+
+def test_public_exchange_result_has_no_secret_bytes() -> None:
+    from dataclasses import asdict
+    from src.hybrid_exchange import perform_hybrid_exchange as public_exchange
+    result = public_exchange()
+    assert asdict(result) == {"success": True, "session_key_length": 32}
+    assert "bytes" not in repr(result)
+
+
+def test_internal_secret_repr_is_redacted() -> None:
+    result = perform_hybrid_exchange()
+    representation = repr(result)
+    for secret in (result.x25519_shared_secret_a, result.mlkem_shared_secret_a, result.session_key_a):
+        assert repr(secret) not in representation

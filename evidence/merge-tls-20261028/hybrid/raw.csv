@@ -1,0 +1,3 @@
+run_id,timestamp_utc,mode,attempt,success,latency_ms,tls_version,negotiated_group,certificate_verified,session_reused,error_type
+877614b41f06,2026-10-28T16:48:33.010518+00:00,hybrid,1,True,1049.811300,TLSv1.3,X25519MLKEM768,True,None,
+877614b41f06,2026-10-28T16:48:34.060386+00:00,hybrid,2,True,1040.749300,TLSv1.3,X25519MLKEM768,True,None,

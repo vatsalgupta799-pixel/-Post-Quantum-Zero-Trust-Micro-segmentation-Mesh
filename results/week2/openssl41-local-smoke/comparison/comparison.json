@@ -1,0 +1,20 @@
+{
+  "p50_classical_ms": 1042.3057,
+  "p50_hybrid_ms": 1066.1231,
+  "p50_abs_diff_ms": 23.817400000000134,
+  "p50_rel_overhead_pct": 2.2850685744115316,
+  "p95_classical_ms": 1054.03612,
+  "p95_hybrid_ms": 1088.6356999999998,
+  "p95_abs_diff_ms": 34.59957999999983,
+  "p95_rel_overhead_pct": 3.2825801074065497,
+  "p99_classical_ms": 1055.078824,
+  "p99_hybrid_ms": 1090.63682,
+  "p99_abs_diff_ms": 35.557996,
+  "p99_rel_overhead_pct": 3.3701743595983693,
+  "mean_classical_ms": 1044.8878666666667,
+  "mean_hybrid_ms": 1062.8201999999999,
+  "mean_abs_diff_ms": 17.93233333333319,
+  "mean_rel_overhead_pct": 1.7161969150373764,
+  "classical_success_count": 3,
+  "hybrid_success_count": 3
+}

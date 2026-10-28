@@ -1,0 +1,4 @@
+run_id,timestamp_utc,mode,attempt,success,latency_ms,tls_version,negotiated_group,certificate_verified,session_reused,error_type
+local-hybrid-openssl41-smoke,2026-10-28T09:56:49.307683+00:00,hybrid,1,True,1091.137100,TLSv1.3,X25519MLKEM768,True,False,
+local-hybrid-openssl41-smoke,2026-10-28T09:56:50.398903+00:00,hybrid,2,True,1066.123100,TLSv1.3,X25519MLKEM768,True,False,
+local-hybrid-openssl41-smoke,2026-10-28T09:56:51.465073+00:00,hybrid,3,True,1031.200400,TLSv1.3,X25519MLKEM768,True,False,

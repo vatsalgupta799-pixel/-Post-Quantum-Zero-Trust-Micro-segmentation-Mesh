@@ -11,7 +11,7 @@ import pytest
 from cryptography.exceptions import UnsupportedAlgorithm
 
 import src.integration as integration
-from src.hybrid_exchange import perform_hybrid_exchange
+from src.hybrid_exchange import _perform_hybrid_exchange as perform_hybrid_exchange
 
 
 def test_integration_interface_runs_the_real_hybrid_workflow() -> None:
@@ -143,3 +143,16 @@ def test_importing_integration_module_has_no_output_or_demo_side_effect() -> Non
 
     assert completed.stdout == ""
     assert completed.stderr == ""
+
+
+def test_traceback_does_not_expose_underlying_exception(monkeypatch):
+    import traceback
+    def fail():
+        raise RuntimeError("sensitive internal detail")
+    monkeypatch.setattr(integration, "perform_hybrid_exchange", fail)
+    try:
+        integration.establish_hybrid_session()
+    except integration.HybridIntegrationError as error:
+        assert "sensitive internal detail" not in "".join(traceback.format_exception(error))
+    else:
+        pytest.fail("expected sanitized failure")

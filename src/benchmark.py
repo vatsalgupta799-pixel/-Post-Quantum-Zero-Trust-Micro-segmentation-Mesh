@@ -31,7 +31,7 @@ from src.classical_ecdh import (
     derive_shared_secret,
     generate_key_pair as generate_x25519_key_pair,
 )
-from src.hybrid_exchange import derive_hybrid_session_key, perform_hybrid_exchange
+from src.hybrid_exchange import derive_hybrid_session_key, _perform_hybrid_exchange as perform_hybrid_exchange
 from src.pqc_mlkem import (
     decapsulate_shared_secret,
     encapsulate_shared_secret,

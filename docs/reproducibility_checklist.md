@@ -1,3 +1,5 @@
+> **Current rectification update (28 October 2026):** See [the current audit](project_audit_week2.md) for superseding evidence. The OpenSSL timing includes process startup, TCP, TLS, verification, shutdown and parsing; it is not isolated handshake latency. Session reuse is now recorded as unknown and the analyzer rejects it until independent freshness evidence is available. Local live TLS checks and a new matched comparison are blocked by loopback connection permissions. Older smoke data is historical and cannot establish hostname verification or a defensible tail-latency comparison. Use new output directories and a fresh nonexistent pytest basetemp.
+
 # Day 7 Reproducibility Checklist
 
 This checklist records what was actually verified in the existing workspace on
