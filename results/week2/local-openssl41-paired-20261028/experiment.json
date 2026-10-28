@@ -1,0 +1,17 @@
+{
+  "server_version": "OpenSSL 4.1.0 23 Oct 2026 (Library: OpenSSL 4.1.0 23 Oct 2026)",
+  "server_configuration": "OpenSSL s_server -tls1_3 -groups X25519:X25519MLKEM768 -www; no client authentication or authorization",
+  "client_version": "OpenSSL 4.1.0 23 Oct 2026 (Library: OpenSSL 4.1.0 23 Oct 2026)",
+  "network_path": "IPv4 loopback 127.0.0.1:19534",
+  "server_name": "localhost",
+  "trust": "ephemeral self-signed localhost certificate explicitly supplied to client",
+  "ordering": "hybrid, classical, classical, hybrid; two blocks of 50 attempts per mode",
+  "sample_count_rationale": "100 per mode rather than 1000: each process took about 1 second; 1000 per mode would take approximately 35 minutes. p95/p99 are exploratory only.",
+  "measurement_scope": "perf_counter_ns around verify_tls_group: process startup, TCP, TLS, certificate verification, output capture, shutdown and parsing; not isolated handshake latency",
+  "environment": "Windows-11-10.0.26300-SP0",
+  "python": "3.13.12 (tags/v3.13.12:1cbe481, Feb  3 2026, 18:22:25) [MSC v.1944 64 bit (AMD64)]",
+  "python_ssl": "OpenSSL 3.0.18 30 Sep 2025",
+  "cryptography": "50.0.2",
+  "started_utc": "2026-10-28T17:36:27.400138+00:00",
+  "source_state": "Measured at HEAD 5e5f952 with uncommitted session-telemetry changes. A subsequent verifier fix only clears verification flags on failed connections; all 200 measured connections had succeeded."
+}

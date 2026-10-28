@@ -1,0 +1,34 @@
+{
+  "note": "Milestones are observed lines from OpenSSL stderr; they include startup and scheduling; exit includes process shutdown. Not handshake-only timing. TCP probes are separate attempts, not an additive decomposition.",
+  "tcp_probe_ms": [
+    16.0202,
+    10.3769,
+    10.4028
+  ],
+  "tls_process_trials_ms": [
+    {
+      "established": 30.1018,
+      "verified": 30.134,
+      "group": 30.136,
+      "done": 1029.8118,
+      "exit": 1033.9151,
+      "exit_code": 0
+    },
+    {
+      "established": 30.894,
+      "verified": 30.9186,
+      "group": 30.9204,
+      "done": 1030.6027,
+      "exit": 1036.0471,
+      "exit_code": 0
+    },
+    {
+      "established": 26.7634,
+      "verified": 26.7897,
+      "group": 26.7916,
+      "done": 1026.62,
+      "exit": 1030.0046,
+      "exit_code": 0
+    }
+  ]
+}

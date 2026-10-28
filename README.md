@@ -1,4 +1,8 @@
-> **Current Week 2 status:** See [the audit update](docs/project_audit_week2.md). Local live TLS verification and a matched comparison remain blocked; the process-inclusive smoke measurements are not handshake latency. Session freshness is unknown.
+> **Current local Week 2 result:** TLS 1.3 new/resumed controls passed for both groups; a matched 100-per-mode OpenSSL loopback study is available. It measures process-inclusive duration, not isolated handshake latency. See the [current audit](docs/project_audit_week2.md).
+
+> **Week 1 reproduction (28 October 2026):** The declared requirements were installed into a new local `.venv` on Windows, and the tests and four demos were run using that environment. See the [reproduction checklist](docs/reproducibility_checklist.md) for exact commands and limitations. The in-memory hybrid exchange is unauthenticated educational code, not production TLS or mTLS; its in-process benchmark is not a TLS or network measurement.
+
+> **Current Week 2 status:** See [the audit update](docs/project_audit_week2.md). The local matched comparison and observed session controls are available; the measured process duration is not handshake latency.
 
 # Post-Quantum Zero-Trust Microsegmentation Mesh
 
@@ -265,7 +269,7 @@ It does not reinterpret Day 5 in-process results as TLS measurements.
 **Stored classical baseline:** 1,000 fresh TLS 1.3 connections configured for
 X25519 over localhost, 100% success rate, median (p50) latency 15.36 ms. It
 is retained as a configuration-restricted baseline, not direct named-group
-evidence, because the machine has no OpenSSL CLI that can report the group.
+evidence, because that historical Python measurement did not expose the negotiated group.
 
 **Hybrid smoke test complete:** Python remains linked to OpenSSL 3.0.18 and
 cannot configure `X25519MLKEM768`, but the harness now uses an installed
@@ -299,7 +303,7 @@ python scripts\benchmark_tls.py --mode hybrid --host HOST --port 8443 --server-n
 
 ~~~
 
-The analyzer cannot accept new runs until independently observed session freshness is implemented; the benchmark commands above require a verified endpoint and were not validated in this environment.
+The analyzer requires observed new-session status for accepted rows. The endpoint-dependent commands above are illustrative and require a verified endpoint; the local paired run is linked in the audit.
 
 For mTLS, provide the approved --client-cert and --client-key values to both
 modes. Do not disable certificate validation, and stop if verification does

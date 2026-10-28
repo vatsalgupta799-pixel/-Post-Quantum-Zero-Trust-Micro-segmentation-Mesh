@@ -2,6 +2,8 @@
 
 ## Executive summary
 
+This report preserves historical in-process Python cryptographic-operation measurements, not TLS handshakes, network, Envoy, or Kubernetes latency. No new performance run was performed for the 28 October reproduction. Recalculation from the preserved raw CSV confirmed 500 complete-exchange samples per mode and the medians in the table below. The local hybrid construction is unauthenticated and is not production TLS or mTLS.
+
 This report contains actual local measurements collected on 2026-10-18T19:38:11+05:30.
 X25519 + HKDF was the fastest complete exchange in this run at a 0.176800 ms median.
 The hybrid complete exchange had a 0.396850 ms absolute median difference from the classical baseline (224.462670%).

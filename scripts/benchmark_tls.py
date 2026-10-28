@@ -116,7 +116,7 @@ def _measure_single_connection(
     client_key: str | None,
     openssl_path: str | None,
 ) -> TLSSample:
-    """Measure one fresh, directly verified TLS connection.
+    """Measure one directly verified TLS connection in a new client process.
 
     This deliberately runs a new ``openssl s_client`` process for every
     sample. The timing includes client process startup, TCP setup, and TLS
@@ -162,7 +162,7 @@ def _measure_single_connection(
         tls_version=tls_version,
         negotiated_group=negotiated_group,
         certificate_verified=bool(verification.get("certificate_verified")),
-        session_reused=None,
+        session_reused=verification.get("session_reused") if verified else None,
         error_type=error,
     )
 
@@ -206,7 +206,7 @@ def compute_statistics(latencies_ms: Sequence[float]) -> dict:
     return {
         "count": len(values),
         "mean_ms": statistics.mean(values),
-        "stddev_ms": statistics.stdev(values) if len(values) > 1 else 0.0,
+        "stddev_ms": statistics.stdev(values) if len(values) > 1 else None,
         "min_ms": min(values),
         "max_ms": max(values),
         "p50_ms": percentile_linear(values, 50),
@@ -367,7 +367,7 @@ def run_tls_benchmark(
         "client_cert_used": bool(client_cert),
         "warmup_connections": warmup,
         "warmup_attempts": [sample.csv_row() for sample in warmup_samples],
-        "session_evidence": "Unknown: fresh process, no session input and -no_ticket constrain resumption but do not independently prove it.",
+        "session_evidence": "Per-sample OpenSSL New/Reused TLSv1.3 status; missing or contradictory status is unknown and rejected by comparison.",
         "measured_connections": iterations,
         "timeout_seconds": timeout,
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
@@ -388,9 +388,10 @@ def run_tls_benchmark(
         "connection_type": "fresh_process_tcp_tls",
         "session_resumption_policy": "new openssl process per sample; -no_ticket; no -sess_in",
         "timing_description": (
-            "Connection-establishment latency: from immediately before "
-            "openssl s_client starts through direct TLS 1.3 group and "
-            "certificate verification and process exit. Includes client process startup, TCP setup, and shutdown."
+            "Process-inclusive duration: from immediately before calling "
+            "verify_tls_group through OpenSSL path resolution, client startup, "
+            "TCP, TLS, certificate verification, output capture, process exit, "
+            "and Python parsing. Not isolated TLS handshake latency."
         ),
         "group_verification_method": "openssl s_client direct per-connection output",
         "preflight_verification": preflight_verification,

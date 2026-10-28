@@ -1,0 +1,19 @@
+TLS Benchmark Summary — CLASSICAL
+==================================================
+Run ID:          paired-classical-block-2
+Target:          127.0.0.1:19534
+Expected group:  X25519
+Warmup:          5
+Measured:        50
+Successful:      50
+Failed:          0
+Success rate:    100.0%
+
+Latency Statistics (ms):
+  p50:   1035.0789
+  p95:   1038.3485899999998
+  p99:   1042.4381720000001
+  mean:  1035.40492
+  stdev: 2.045213999980022
+  min:   1032.12
+  max:   1044.4311

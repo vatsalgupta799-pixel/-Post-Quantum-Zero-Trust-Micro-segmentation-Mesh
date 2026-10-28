@@ -69,7 +69,7 @@ def compute_statistics(latencies_ms: Sequence[float]) -> dict:
     return {
         "count": len(values),
         "mean_ms": statistics.mean(values),
-        "stddev_ms": statistics.stdev(values) if len(values) > 1 else 0.0,
+        "stddev_ms": statistics.stdev(values) if len(values) > 1 else None,
         "min_ms": min(values),
         "max_ms": max(values),
         "p50_ms": percentile_linear(values, 50),
@@ -273,8 +273,8 @@ def generate_charts(
                    label="Hybrid (X25519MLKEM768)", color=hybrid_color, alpha=0.85)
 
     ax.set_xlabel("Statistic")
-    ax.set_ylabel("Latency (ms)")
-    ax.set_title("TLS Connection-Establishment Latency: Classical vs Hybrid")
+    ax.set_ylabel("Client process duration (ms)")
+    ax.set_title("Process-inclusive TLS connection duration: Classical vs Hybrid")
     ax.set_xticks(list(x))
     ax.set_xticklabels(percentiles)
     ax.legend()
@@ -319,9 +319,9 @@ def generate_charts(
             cdf = [(i + 1) / n for i in range(n)]
             ax.plot(sorted_lat, cdf, label=label, color=color, linewidth=1.5)
 
-        ax.set_xlabel("Latency (ms)")
+        ax.set_xlabel("Client process duration (ms)")
         ax.set_ylabel("Cumulative Probability")
-        ax.set_title("Empirical CDF: TLS Connection-Establishment Latency")
+        ax.set_title("Empirical CDF: process-inclusive TLS connection duration")
         ax.legend()
         ax.grid(alpha=0.3)
         fig.tight_layout()
@@ -346,8 +346,8 @@ def generate_charts(
         bp["boxes"][1].set_facecolor(hybrid_color)
         bp["boxes"][1].set_alpha(0.6)
 
-        ax.set_ylabel("Latency (ms)")
-        ax.set_title("TLS Connection-Establishment Latency Distribution")
+        ax.set_ylabel("Client process duration (ms)")
+        ax.set_title("Process-inclusive TLS connection duration distribution")
         ax.grid(axis="y", alpha=0.3)
         fig.tight_layout()
 
@@ -399,9 +399,9 @@ def generate_report(
     if p50_diff is not None and p50_pct is not None:
         direction = "higher" if p50_diff > 0 else "lower"
         lines.append(
-            f"Hybrid TLS (X25519MLKEM768) showed a median (p50) latency that "
-            f"was {abs(p50_diff):.4f} ms {direction} than classical TLS (X25519), "
-            f"representing a {abs(p50_pct):.2f}% {'overhead' if p50_diff > 0 else 'improvement'}."
+            f"The hybrid client process duration had a median (p50) "
+            f"{abs(p50_diff):.4f} ms {direction} than the classical duration "
+            f"({p50_pct:+.2f}% relative difference). This is not isolated handshake latency."
         )
     else:
         lines.append("Insufficient data for a comparative summary.")
@@ -412,18 +412,24 @@ def generate_report(
     lines.append("")
     for label, meta in [("Classical", classical_meta), ("Hybrid", hybrid_meta)]:
         if meta:
+            provenance = meta.get("experiment_provenance", {})
             lines.append(f"### {label} Run")
             lines.append(f"- Run ID: {meta.get('run_id', 'N/A')}")
             lines.append(f"- Target: {meta.get('host')}:{meta.get('port')}")
             lines.append(f"- Expected group: {meta.get('expected_group')}")
-            lines.append(f"- Python: {meta.get('python_version', 'N/A')}")
-            lines.append(f"- Python OpenSSL backend: {meta.get('openssl_backend', 'N/A')}")
-            lines.append(f"- OpenSSL client: {meta.get('openssl_client_version', 'not recorded')}")
-            lines.append(f"- OS: {meta.get('os', 'N/A')}")
+            lines.append(f"- Python: {meta.get('python_version', provenance.get('python', 'N/A'))}")
+            lines.append(f"- Python OpenSSL backend: {meta.get('openssl_backend', provenance.get('python_ssl', 'N/A'))}")
+            lines.append(f"- OpenSSL client: {meta.get('openssl_client_version', provenance.get('client_version', 'not recorded'))}")
+            lines.append(f"- OpenSSL server: {provenance.get('server_version', meta.get('tls_server_version', 'not recorded'))}")
+            lines.append(f"- Server configuration: {provenance.get('server_configuration', meta.get('server_configuration', 'not recorded'))}")
+            lines.append(f"- Network path: {provenance.get('network_path', meta.get('network_path', 'not recorded'))}")
+            lines.append(f"- OS: {meta.get('os', provenance.get('environment', 'N/A'))}")
             lines.append(f"- Warmup: {meta.get('warmup_connections', 'N/A')}")
             lines.append(f"- Measured: {meta.get('measured_connections', 'N/A')}")
-            lines.append(f"- Timeout: {meta.get('timeout_seconds', 'N/A')}s")
-            lines.append(f"- Timing: {meta.get('timing_description', 'N/A')}")
+            timeout = meta.get("timeout_seconds")
+            lines.append(f"- Timeout: {str(timeout) + 's' if timeout is not None else 'not recorded'}")
+            lines.append(f"- Timing: {meta.get('timing_description', provenance.get('measurement_scope', 'not recorded'))}")
+            lines.append(f"- Ordering: {provenance.get('ordering', 'not recorded')}")
             lines.append("")
 
     # Results table
@@ -440,10 +446,10 @@ def generate_report(
     lines.append(f"| Success rate | {c_sr:.1%} | {h_sr:.1%} |")
 
     for metric, label in [
-        ("p50_ms", "p50 latency (ms)"),
-        ("p95_ms", "p95 latency (ms)"),
-        ("p99_ms", "p99 latency (ms)"),
-        ("mean_ms", "Mean latency (ms)"),
+        ("p50_ms", "p50 process duration (ms)"),
+        ("p95_ms", "p95 process duration (ms)"),
+        ("p99_ms", "p99 process duration (ms)"),
+        ("mean_ms", "Mean process duration (ms)"),
         ("stddev_ms", "Std deviation (ms)"),
         ("min_ms", "Min latency (ms)"),
         ("max_ms", "Max latency (ms)"),
@@ -457,7 +463,7 @@ def generate_report(
     # Comparative analysis
     lines.append("## Comparative Analysis")
     lines.append("")
-    lines.append("| Percentile | Abs. Difference (ms) | Relative Overhead (%) |")
+    lines.append("| Percentile | Difference, hybrid minus classical (ms) | Relative difference (%) |")
     lines.append("| --- | --- | --- |")
     for label in ("p50", "p95", "p99", "mean"):
         abs_d = comparison.get(f"{label}_abs_diff_ms")
@@ -482,7 +488,10 @@ def generate_report(
     lines.append("## Limitations")
     lines.append("")
     lines.append("- Each accepted input row has OpenSSL-reported TLS 1.3, certificate, and named-group evidence.")
-    lines.append("- Timing includes OpenSSL client startup and TCP setup (connection-establishment latency, not pure handshake).")
+    lines.append("- Each accepted row records an OpenSSL-observed new session; unknown or resumed sessions are rejected.")
+    lines.append("- Timing includes client process startup, TCP, TLS, validation, output capture, shutdown and parsing; it is not pure handshake latency.")
+    lines.append("- Small samples, especially p99 estimates, are sensitive to outliers and ordering effects.")
+    lines.append("- A process-duration difference cannot be attributed solely to the handshake or generalized to other systems.")
     lines.append("- Results apply only to the specific endpoint, hardware, and software versions tested.")
     lines.append("- Loopback connections do not measure realistic network conditions.")
     lines.append("- No packet capture or handshake-size data was collected.")
@@ -492,10 +501,7 @@ def generate_report(
     lines.append("## Reproduction Instructions")
     lines.append("")
     lines.append("```powershell")
-    lines.append("$python = python")
-    lines.append("& $python scripts/benchmark_tls.py --mode classical --host HOST --port PORT --ca-file CA --openssl-path /path/to/openssl --warmup 100 --iterations 1000 --output-dir results/week2/classical-verified")
-    lines.append("& $python scripts/benchmark_tls.py --mode hybrid --host HOST --port PORT --ca-file CA --openssl-path /path/to/openssl --warmup 100 --iterations 1000 --output-dir results/week2/hybrid-verified")
-    lines.append("& $python scripts/analyze_tls_results.py --classical-csv results/week2/classical-full/raw.csv --hybrid-csv results/week2/hybrid-full/raw.csv --output-dir results/week2/comparison")
+    lines.append("python scripts/analyze_tls_results.py --classical-csv <classical/raw.csv> --hybrid-csv <hybrid/raw.csv> --output-dir <new-output-directory>")
     lines.append("```")
     lines.append("")
 

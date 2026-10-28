@@ -1,3 +1,65 @@
+# Local Week 2 session and comparison update — 28 October 2026
+
+**Readiness: local process-duration comparison available; isolated handshake latency and integrated mesh comparison remain incomplete.** This update supersedes inconsistent historical sections below.
+
+- At baseline, `main` matched the Week 2 commit 5e5f952 and `.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp .tmp/local-week2-baseline-unique-20261028 --tb=short` passed 130 tests in 1.40 s, with no reported failures, skips or warnings. After changes, the same command using the new `.tmp/local-week2-verified-unique-20261028` base passed **140 tests in 1.08 s**, with no reported failures, skips or warnings. Environment: Windows 11 AMD64, Python 3.13.12, cryptography 50.0.2, pytest 8.4.2, client and server OpenSSL 4.1.0; Python SSL OpenSSL 3.0.18. `pip check` reported no broken dependencies.
+- [Session controls](../evidence/week2-session-control-20261028/README.md) show TLS 1.3 `New` and ticket-resumed `Reused` for each group using a trusted localhost certificate; temporary session files were removed. The verifier now parses only unambiguous OpenSSL session-status lines and saves only allowlisted non-secret output. The existing CSV `session_reused` field represents observed false/true/unknown; the analyzer rejects resumed and unknown samples.
+- Final local verifier tests: both modes succeeded with TLS 1.3, the expected group, certificate and hostname validation and new status. Wrong hostname, unrelated CA and an X25519-only server for a hybrid request failed. OpenSSL printed `Verification: OK` on the failed group handshake; the first diagnostic recorded a misleading certificate flag even though the connection was rejected. The verifier was fixed to clear certificate and group verification flags on failed connections; the repeated wrong-group check confirmed both false. These are loopback checks, not Envoy/mTLS proof.
+- The [matched local experiment](../results/week2/local-openssl41-paired-20261028/README.md) recorded 100 measured attempts per mode, all successful, new, certificate- and group-verified; four blocks followed hybrid/classical/classical/hybrid with 5 excluded warm-ups and a preflight each. Client and server were OpenSSL 4.1.0, IPv4 loopback, same ephemeral trusted certificate and server configuration, no authorization or client authentication. Raw observations, block metadata, verification evidence, summaries and charts are preserved. A raw-row recalculation confirmed p50, p95, p99, mean, sample standard deviation and differences.
+- p50 process duration was 1035.6246 ms classical and 1035.1042 ms hybrid; difference -0.5204 ms (-0.0502%). p95 was 1050.6977 vs 1039.8693 ms; p99 1055.2880 vs 1043.5635 ms. These are descriptive process-inclusive observations, not an isolated handshake comparison. Only 100 samples per mode were collected because 1,000 per mode would take roughly 35 minutes at one second per attempt; p95/p99 are exploratory and cannot establish hybrid handshake overhead.
+- `perf_counter_ns` spans the entire client verifier, including process startup, TCP, TLS, certificate checks, output capture, termination and parsing. Prior milestone diagnostics showed group output at about 27–31 ms and `DONE` around one second later; adding `-no-interactive` or `-nocommands` did not remove that delay. The cause remains unknown; no reliable handshake-only timer was implemented.
+
+| Work item | Status | Remaining work |
+| --- | --- | --- |
+| TLS 1.3 session control | Verified locally for both groups | Revalidate with other clients/servers before generalizing |
+| Per-sample status | New/reused/unknown observed; analyzer rejects resumed/unknown | Confirm equivalent telemetry on target server |
+| Local matched process duration | 100/100 success per mode, raw and charts preserved | Larger independent repetitions; investigate shutdown and timing isolation |
+| Integrated mesh | Outside this local task | Team-provided Envoy, policy, deployment and capture evidence remains required |
+
+For review, demonstrate the controls and local observations with the stated limits. Do not claim an isolated TLS handshake performance result, production readiness, or integrated mesh completion.
+
+---
+
+# Week 2 verification update — 28 October 2026
+
+**Readiness: partial.** Local TLS identity and negative checks now have direct evidence. The planned comparative benchmark and integrated mesh review remain blocked by session evidence and team inputs. This update supersedes inconsistent older sections, preserved below.
+
+- The current checkout at `db149c6` matched fetched `main`. The isolated Python 3.13.12 environment had cryptography 50.0.2, pytest 8.4.2 and OpenSSL CLI 4.1.0; environment checker 5/5 and `pip check` passed. Before code changes, `.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp .tmp/week2-baseline-20261028-new --tb=short`: 128 passed in 1.14 s, no reported failures, skips or warnings.
+- After code and documentation updates, `.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp .tmp/week2-final-20261028-new --tb=short`: **130 passed in 1.29 s**, no failures, skips or reported warnings. `git diff --check` passed. Both runs used new nonexistent pytest base directories.
+- The local OpenSSL 4.1.0 loopback server negotiated TLS 1.3, a trusted localhost certificate, and respectively X25519 and X25519MLKEM768. Wrong hostname, unrelated trust anchor and hybrid against an X25519-only server each failed; their output identifies hostname mismatch, self-signed certificate and handshake failure respectively. [Sanitized evidence](../evidence/week2-live-validation-20261028/results.json) includes the outcomes and configuration. This is not Envoy or mTLS evidence.
+- [Timing diagnostics](../evidence/week2-live-validation-20261028/timing-milestones.json) show verified group lines 26.8–30.9 ms after process launch, `DONE` around 1,026–1,031 ms, and exit around 1,030–1,036 ms in three runs. Separate TCP probes were 10–16 ms and `openssl version` processes 20–21 ms. These are not additive and the delay cause is unknown. The benchmark timer includes process startup, TCP, TLS, certificate verification, output parsing and shutdown; it is not pure handshake latency.
+- Normal OpenSSL output displayed `New` in both modes, but `-reconnect` also yielded only `New` on this server; no resumed control was observed. The harness still uses brief output and records reuse as unknown. Do not store normal full output because it may contain session secrets. A meaningful comparison requires verified new/reused telemetry or a validated alternative; no 1,000-sample comparison was run and no new comparison is claimed.
+- Recalculation of the three-per-mode historical smoke rows reproduced their p50/p95/p99, sample standard deviation, and absolute and percentage differences; they remain too few and predate hostname verification. Statistics now report sample standard deviation as unavailable for a single sample rather than zero. Tests were added for hostname and IP verification options.
+
+| Area | Current status | Next action |
+| --- | --- | --- |
+| TLS identity and groups | Both local positives and three negatives observed | Repeat against team-owned trusted Envoy endpoint |
+| Session evidence | Blocked: resumed control not reproduced | Obtain observed new and resumed controls, implement safe per-sample telemetry and reject unknown/resumed cases |
+| Timing | Process-inclusive cost diagnosed to output milestones; cause unresolved | Investigate shutdown and validate a comparable boundary, or retain labelled process duration |
+| Comparison | Not collected | After session validation, run matched modes, preserve attempts and repeat reversed order; prefer 1,000 per mode |
+| Integration | Partial historical evidence | Obtain exact team-owned inputs below and cross-check run IDs |
+
+Person 1: pinned PQC-capable Envoy build, config, endpoint, trust material and direct group logs. Person 2: OPA policy and Envoy ext_authz configuration with allow/deny results. Person 3: workload/sidecar manifests, certificates/trust and connectivity/isolation evidence. Person 5: run-linked PCAP, capture procedure, timestamps, endpoints and group telemetry. Historical certificate-authentication and Windows-to-Kali files are separate observations, not proof of the complete mesh. No PCAP was found under evidence, results or kubernetes; authorization overhead must be measured separately.
+
+Final readiness: demonstrate the local verifier with its limitations; do not present a process duration as handshake latency or claim an integrated Envoy comparison. The next review actions are session-control validation, matched data collection, and team evidence coordination.
+
+---
+
+# Week 1 handover update — 28 October 2026
+
+This update supersedes older Week 1 environment and test claims below. It records local verification in the `main-checkout`; no teammate infrastructure or historical result was modified.
+
+- A new project `.venv` was created using Python 3.13.12. The first `python -m venv .venv` attempt failed at `ensurepip` because the default temporary directory was not writable; the partially created environment was preserved. Setting `TEMP` and `TMP` to `.tmp/week1-install-temp-20261028` and running `.\.venv\Scripts\python.exe -m ensurepip --upgrade --default-pip` succeeded. The requirements installation command `.\.venv\Scripts\python.exe -m pip install -r requirements.txt --disable-pip-version-check` completed successfully. All 40 declared requirements matched; `.\.venv\Scripts\python.exe -m pip check` found no broken installed requirements.
+- Installed versions: Python 3.13.12, pip 25.3, cryptography 50.0.2, pytest 8.4.2, Matplotlib 3.11.2; Python SSL OpenSSL 3.0.18. This is one Windows installation, not a complete lockfile or a cross-platform verification.
+- `.\.venv\Scripts\python.exe scripts\check_environment.py`: 5 passed, 0 failed, 0 blocked. `.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp .tmp/week1-baseline-20261028-unique --tb=short`: 126 passed in 1.30 s before changes. After adding component-failure tests, the same command with the fresh `.tmp/week1-final-20261028-unique` base produced **128 passed in 1.08 s**, 0 failures, skips, errors or reported warnings. Use a new nonexistent basetemp each time.
+- `.\.venv\Scripts\python.exe scripts\demo_ecdh.py`, `scripts\demo_mlkem.py`, `scripts\demo_hybrid.py`, and `src\hybrid_key_exchange.py` all completed successfully using the same interpreter. The final demo includes local AES-GCM. Normal outputs and public result tests did not reveal secret bytes.
+- Code inspection confirms both components contribute to HKDF, component mismatches abort and neither component has a fallback path. Added tests inject a failure into X25519 and ML-KEM operations and confirm the public exchange raises. Existing agreement, tampering and secret-representation tests pass. Internal educational callers still access key material; Python does not guarantee erasure.
+- The preserved Week 1 raw CSV has 500 complete-exchange samples per mode; recalculated medians are 0.176800 ms classical, 0.330650 ms ML-KEM and 0.573650 ms hybrid, matching the historical report. No new performance run was made. These are in-process cryptographic timings, not network or TLS timings.
+
+**Week 1 readiness:** The educational prototype, demos, tests and Windows reproduction are ready for a scoped review. It remains unauthenticated and is not production TLS or mTLS; cross-platform reproduction and independent security review have not been performed. For the mid-project review, use [presentation notes](presentation_notes.md), explain the recorded benchmark scope, and coordinate deployment and integration evidence with the owning teammates. Week 2 session evidence, negative TLS tests and a matched performance comparison remain separate and incomplete.
+
+---
+
 > **Merge verification update:** A later isolated local OpenSSL 4.1.0 server run succeeded for both groups, with certificate and hostname validation: 2/2 measured attempts per mode after one warm-up. See [smoke evidence](../evidence/merge-tls-20261028/README.md). This supersedes the earlier local connectivity blocker only; session freshness, the negative cases, a meaningful comparison, and integrated mesh evidence remain unverified.
 
 # Rectification update — 28 October 2026

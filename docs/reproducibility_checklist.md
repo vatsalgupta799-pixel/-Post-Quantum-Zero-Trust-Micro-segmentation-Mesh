@@ -1,4 +1,28 @@
-> **Current rectification update (28 October 2026):** See [the current audit](project_audit_week2.md) for superseding evidence. The OpenSSL timing includes process startup, TCP, TLS, verification, shutdown and parsing; it is not isolated handshake latency. Session reuse is now recorded as unknown and the analyzer rejects it until independent freshness evidence is available. Local live TLS checks and a new matched comparison are blocked by loopback connection permissions. Older smoke data is historical and cannot establish hostname verification or a defensible tail-latency comparison. Use new output directories and a fresh nonexistent pytest basetemp.
+> **Current local Week 2 result:** TLS 1.3 new/resumed controls passed for both groups; a matched 100-per-mode OpenSSL loopback study is available. It measures process-inclusive duration, not isolated handshake latency. See the [current audit](project_audit_week2.md).
+
+> **Current rectification update (28 October 2026):** See [the current audit](project_audit_week2.md) for superseding evidence. The OpenSSL timing includes process startup, TCP, TLS, verification, shutdown and parsing; it is not isolated handshake latency. The analyzer rejects resumed or unknown session status. A later matched local process-duration comparison is recorded in the latest audit. Older smoke data is historical and cannot establish hostname verification or a defensible tail-latency comparison. Use new output directories and a fresh nonexistent pytest basetemp.
+
+# Week 1 reproduction — 28 October 2026
+
+In this Windows `main-checkout`, a new `.venv` was created with Python 3.13.12. The initial `python -m venv .venv` created the environment but failed during pip bootstrapping because the default temporary location was not writable. Without deleting the environment, setting `TEMP` and `TMP` to a workspace directory and running `.\.venv\Scripts\python.exe -m ensurepip --upgrade --default-pip` installed pip 25.3. Then `.\.venv\Scripts\python.exe -m pip install -r requirements.txt --disable-pip-version-check` succeeded. All 40 direct requirements matched their constraints; `pip check` found no broken dependencies. This is a successful installation for this host and date, not a locked cross-platform environment: several direct and transitive dependencies are version ranges.
+
+Verified versions: Python 3.13.12, pip 25.3, cryptography 50.0.2, pytest 8.4.2, Matplotlib 3.11.2, Python SSL OpenSSL 3.0.18. `scripts/check_environment.py` reported 5 passed, 0 failed, 0 blocked.
+
+From the repository root, the following used the new environment:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\check_environment.py
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp .tmp/week1-final-20261028-unique --tb=short
+.\.venv\Scripts\python.exe scripts\demo_ecdh.py
+.\.venv\Scripts\python.exe scripts\demo_mlkem.py
+.\.venv\Scripts\python.exe scripts\demo_hybrid.py
+.\.venv\Scripts\python.exe src\hybrid_key_exchange.py
+```
+
+The last command demonstrates AES-GCM locally. The pytest base directory shown was a new, nonexistent path: always select a fresh path, since pytest may remove an existing `--basetemp`. The final full suite passed **128 tests**, with 0 failures, skips, errors or reported warnings, in 1.08 seconds. All four demos completed successfully without printing secret bytes. The initial pre-change run passed 126 tests in 1.30 seconds. Details are in the current [audit](project_audit_week2.md). The setup and demos were run on Windows; other platforms were not tested. The following Day 7 record is preserved as historical evidence from a different workspace.
+
+---
 
 # Day 7 Reproducibility Checklist
 

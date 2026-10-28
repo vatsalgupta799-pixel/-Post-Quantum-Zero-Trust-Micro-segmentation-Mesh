@@ -1,4 +1,26 @@
-> **Current rectification update (28 October 2026):** See [the current audit](project_audit_week2.md) for superseding evidence. The OpenSSL timing includes process startup, TCP, TLS, verification, shutdown and parsing; it is not isolated handshake latency. Session reuse is now recorded as unknown and the analyzer rejects it until independent freshness evidence is available. Local live TLS checks and a new matched comparison are blocked by loopback connection permissions. Older smoke data is historical and cannot establish hostname verification or a defensible tail-latency comparison. Use new output directories and a fresh nonexistent pytest basetemp.
+# Local TLS process-duration comparison — 28 October 2026
+
+A local OpenSSL 4.1.0 server and client negotiated TLS 1.3 with a trusted localhost certificate and the exact X25519 or X25519MLKEM768 group. A separate ticket-save/reuse control demonstrated OpenSSL `New` and `Reused` statuses for both groups. The benchmark retained only sanitized status lines and recorded 100 new, verified measured connections per mode, 0 failures; warm-ups and preflights are retained separately.
+
+| Process duration | X25519 | X25519MLKEM768 | Hybrid minus classical |
+| --- | ---: | ---: | ---: |
+| p50 | 1035.6246 ms | 1035.1042 ms | -0.5204 ms (-0.0502%) |
+| p95 | 1050.6977 ms | 1039.8693 ms | -10.8284 ms (-1.0306%) |
+| p99 | 1055.2880 ms | 1043.5635 ms | -11.7245 ms (-1.1110%) |
+| mean | 1037.4300 ms | 1035.6891 ms | -1.7409 ms (-0.1678%) |
+| sample standard deviation | 5.6855 ms | 2.4090 ms | — |
+
+The timer spans OpenSSL process startup, TCP, TLS, certificate verification, output capture, shutdown and parsing. The roughly one-second process delay dominates, so these numbers do not isolate handshake latency or establish which group has lower handshake overhead. Blocks ran hybrid/classical/classical/hybrid, reducing but not eliminating order and drift effects. There were 100 rather than 1,000 attempts per mode because each attempt took about one second; a 1,000-per-mode run would take about 35 minutes. Tail estimates are exploratory. No Envoy, mTLS, authorization or production network measurement is claimed.
+
+Raw data, block metadata, checked summary and accurately labelled plots are in [the paired experiment](../results/week2/local-openssl41-paired-20261028/README.md); the [session controls](../evidence/week2-session-control-20261028/README.md) and [final generated report](../results/week2/local-openssl41-paired-20261028/comparison-final/comparison_report.md) provide supporting evidence.
+
+---
+
+## Earlier report — historical and superseded where inconsistent
+
+> **Week 2 update (28 October 2026):** Local OpenSSL positive and negative TLS checks succeeded; session freshness and a matched comparison remain unverified. Process-inclusive timings are not handshake latency. See the [current audit](project_audit_week2.md).
+
+> **Current rectification update (28 October 2026):** See [the current audit](project_audit_week2.md) for superseding evidence. The OpenSSL timing includes process startup, TCP, TLS, verification, shutdown and parsing; it is not isolated handshake latency. Session reuse is now recorded as unknown and the analyzer rejects it until independent freshness evidence is available. Local TLS positive and negative checks succeeded; a matched comparison remains blocked by session evidence. Older smoke data is historical and cannot establish hostname verification or a defensible tail-latency comparison. Use new output directories and a fresh nonexistent pytest basetemp.
 
 # Week 2 TLS Handshake Benchmark Report
 

@@ -1,0 +1,94 @@
+{
+  "classical_initial": {
+    "returncode": 0,
+    "status_lines": [
+      "Peer Temp Key: X25519, 253 bits",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "Verify return code: 0 (ok)",
+      "Verify return code: 0 (ok)"
+    ],
+    "ticket_file_created": true,
+    "elapsed_ms": 1110.4095
+  },
+  "classical_resumed": {
+    "returncode": 0,
+    "status_lines": [
+      "Peer Temp Key: X25519, 253 bits",
+      "Verification: OK",
+      "Reused, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "Reused, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "Verify return code: 0 (ok)"
+    ],
+    "ticket_file_created": true,
+    "elapsed_ms": 1037.1542
+  },
+  "classical_new": {
+    "returncode": 0,
+    "status_lines": [
+      "Peer Temp Key: X25519, 253 bits",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "Verify return code: 0 (ok)",
+      "Verify return code: 0 (ok)"
+    ],
+    "ticket_file_created": true,
+    "elapsed_ms": 1037.6355
+  },
+  "hybrid_initial": {
+    "returncode": 0,
+    "status_lines": [
+      "Negotiated TLS1.3 group: X25519MLKEM768",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "Verify return code: 0 (ok)",
+      "Verify return code: 0 (ok)"
+    ],
+    "ticket_file_created": true,
+    "elapsed_ms": 1041.6709
+  },
+  "hybrid_resumed": {
+    "returncode": 0,
+    "status_lines": [
+      "Negotiated TLS1.3 group: X25519MLKEM768",
+      "Verification: OK",
+      "Reused, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "Reused, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "Verify return code: 0 (ok)"
+    ],
+    "ticket_file_created": true,
+    "elapsed_ms": 1037.6126
+  },
+  "hybrid_new": {
+    "returncode": 0,
+    "status_lines": [
+      "Negotiated TLS1.3 group: X25519MLKEM768",
+      "Verification: OK",
+      "Verified peername: localhost",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+      "Verify return code: 0 (ok)",
+      "Verify return code: 0 (ok)",
+      "Verify return code: 0 (ok)"
+    ],
+    "ticket_file_created": true,
+    "elapsed_ms": 1040.4975
+  }
+}
