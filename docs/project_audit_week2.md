@@ -1,3 +1,5 @@
+> **Merge verification update:** A later isolated local OpenSSL 4.1.0 server run succeeded for both groups, with certificate and hostname validation: 2/2 measured attempts per mode after one warm-up. See [smoke evidence](../evidence/merge-tls-20261028/README.md). This supersedes the earlier local connectivity blocker only; session freshness, the negative cases, a meaningful comparison, and integrated mesh evidence remain unverified.
+
 # Rectification update — 28 October 2026
 
 **Readiness: NOT READY for a comparative handshake or integrated mesh claim.** This update supersedes conflicting current or historical audit passages below, which are preserved. The root is not a Git working tree, so changes since the earlier audit cannot be established through Git. No teammate infrastructure was changed.

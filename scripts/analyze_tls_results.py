@@ -579,6 +579,10 @@ def main(argv: list[str] | None = None) -> int:
     print(f"[INFO] Classical: {c_success} successful, {c_fail} failed")
     print(f"[INFO] Hybrid:    {h_success} successful, {h_fail} failed")
 
+    if c_fail or h_fail:
+        print(f"[FAIL] Comparison rejected: {c_fail} classical and {h_fail} hybrid measured attempts failed. Inspect raw CSV files.", file=sys.stderr)
+        return 1
+
     if c_success == 0:
         print("[FAIL] No successful classical measurements.", file=sys.stderr)
         return 1

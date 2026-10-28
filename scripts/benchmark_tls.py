@@ -34,7 +34,10 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Any, Sequence
 
-from verify_tls_group import verify_tls_group
+if __package__:
+    from .verify_tls_group import verify_tls_group
+else:
+    from verify_tls_group import verify_tls_group
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
@@ -292,6 +295,10 @@ def run_tls_benchmark(
 
     if mode not in EXPECTED_GROUPS:
         raise ValueError(f"mode must be one of {tuple(EXPECTED_GROUPS)}")
+    if not 1 <= port <= 65535:
+        raise ValueError("port must be between 1 and 65535")
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError("timeout must be positive and finite")
     if warmup < 0:
         raise ValueError("warmup must be non-negative")
     if iterations < 1:
@@ -552,7 +559,7 @@ def main(argv: list[str] | None = None) -> int:
             run_id=args.run_id,
             openssl_path=args.openssl_path,
         )
-    except RuntimeError as exc:
+    except (RuntimeError, ValueError) as exc:
         print(f"\n[FAIL] {exc}", file=sys.stderr)
         return 1
 
@@ -569,8 +576,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"[DONE] Verification: {paths['verification']}")
     print(f"[DONE] Summary:   {paths['summary']}")
 
-    if successful == 0:
-        print("[FAIL] No successful connections. Results are not usable.", file=sys.stderr)
+    if successful != len(samples):
+        print(f"[FAIL] {len(samples) - successful} measured connections failed; inspect raw.csv before comparison.", file=sys.stderr)
         return 1
 
     return 0

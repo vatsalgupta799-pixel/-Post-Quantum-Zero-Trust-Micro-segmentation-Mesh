@@ -1,0 +1,13 @@
+{
+  "created_utc": "2026-10-28T14:45:40.134872+00:00",
+  "host": "127.0.0.1",
+  "port": 8444,
+  "warmup_per_mode": 5,
+  "measured_iterations_per_mode": 100,
+  "timeout_seconds": 10.0,
+  "python": "3.14.6 (main, Jun 10 2026, 18:54:31) [GCC 15.2.0]",
+  "platform": "Linux-7.1.5+kali-amd64-x86_64-with-glibc2.43",
+  "openssl_version": "OpenSSL 3.6.3 9 Jun 2026 (Library: OpenSSL 3.6.3 9 Jun 2026)",
+  "measurement_definition": "Wall-clock duration of launching openssl s_client and completing a TLS connection; includes process startup and local connection overhead, not pure TLS handshake latency.",
+  "certificate_validation": "The temporary self-signed localhost certificate is not trusted; this benchmark validates TLS connection and group evidence, not certificate identity or production trust."
+}
