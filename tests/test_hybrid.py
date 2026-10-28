@@ -197,3 +197,15 @@ def test_internal_secret_repr_is_redacted() -> None:
     representation = repr(result)
     for secret in (result.x25519_shared_secret_a, result.mlkem_shared_secret_a, result.session_key_a):
         assert repr(secret) not in representation
+
+
+@pytest.mark.parametrize("component", ["derive_shared_secret", "encapsulate_shared_secret"])
+def test_component_failure_aborts_public_exchange(monkeypatch, component) -> None:
+    import src.hybrid_exchange as hybrid
+
+    def fail(*args, **kwargs):
+        raise RuntimeError("component unavailable")
+
+    monkeypatch.setattr(hybrid, component, fail)
+    with pytest.raises(RuntimeError, match="component unavailable"):
+        hybrid.perform_hybrid_exchange()

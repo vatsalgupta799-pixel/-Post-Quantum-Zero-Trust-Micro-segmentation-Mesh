@@ -1,4 +1,6 @@
-> **Current Week 2 status:** See [the audit update](docs/project_audit_week2.md). Local live TLS verification and a matched comparison remain blocked; the process-inclusive smoke measurements are not handshake latency. Session freshness is unknown.
+> **Week 1 reproduction (28 October 2026):** The declared requirements were installed into a new local `.venv` on Windows, and the tests and four demos were run using that environment. See the [reproduction checklist](docs/reproducibility_checklist.md) for exact commands and limitations. The in-memory hybrid exchange is unauthenticated educational code, not production TLS or mTLS; its in-process benchmark is not a TLS or network measurement.
+
+> **Current Week 2 status:** See [the audit update](docs/project_audit_week2.md). Local TLS smoke verification succeeded; a matched comparison remains incomplete; the process-inclusive smoke measurements are not handshake latency. Session freshness is unknown.
 
 # Post-Quantum Zero-Trust Microsegmentation Mesh
 

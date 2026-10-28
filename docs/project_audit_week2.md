@@ -1,3 +1,18 @@
+# Week 1 handover update — 28 October 2026
+
+This update supersedes older Week 1 environment and test claims below. It records local verification in the `main-checkout`; no teammate infrastructure or historical result was modified.
+
+- A new project `.venv` was created using Python 3.13.12. The first `python -m venv .venv` attempt failed at `ensurepip` because the default temporary directory was not writable; the partially created environment was preserved. Setting `TEMP` and `TMP` to `.tmp/week1-install-temp-20261028` and running `.\.venv\Scripts\python.exe -m ensurepip --upgrade --default-pip` succeeded. The requirements installation command `.\.venv\Scripts\python.exe -m pip install -r requirements.txt --disable-pip-version-check` completed successfully. All 40 declared requirements matched; `.\.venv\Scripts\python.exe -m pip check` found no broken installed requirements.
+- Installed versions: Python 3.13.12, pip 25.3, cryptography 50.0.2, pytest 8.4.2, Matplotlib 3.11.2; Python SSL OpenSSL 3.0.18. This is one Windows installation, not a complete lockfile or a cross-platform verification.
+- `.\.venv\Scripts\python.exe scripts\check_environment.py`: 5 passed, 0 failed, 0 blocked. `.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp .tmp/week1-baseline-20261028-unique --tb=short`: 126 passed in 1.30 s before changes. After adding component-failure tests, the same command with the fresh `.tmp/week1-final-20261028-unique` base produced **128 passed in 1.08 s**, 0 failures, skips, errors or reported warnings. Use a new nonexistent basetemp each time.
+- `.\.venv\Scripts\python.exe scripts\demo_ecdh.py`, `scripts\demo_mlkem.py`, `scripts\demo_hybrid.py`, and `src\hybrid_key_exchange.py` all completed successfully using the same interpreter. The final demo includes local AES-GCM. Normal outputs and public result tests did not reveal secret bytes.
+- Code inspection confirms both components contribute to HKDF, component mismatches abort and neither component has a fallback path. Added tests inject a failure into X25519 and ML-KEM operations and confirm the public exchange raises. Existing agreement, tampering and secret-representation tests pass. Internal educational callers still access key material; Python does not guarantee erasure.
+- The preserved Week 1 raw CSV has 500 complete-exchange samples per mode; recalculated medians are 0.176800 ms classical, 0.330650 ms ML-KEM and 0.573650 ms hybrid, matching the historical report. No new performance run was made. These are in-process cryptographic timings, not network or TLS timings.
+
+**Week 1 readiness:** The educational prototype, demos, tests and Windows reproduction are ready for a scoped review. It remains unauthenticated and is not production TLS or mTLS; cross-platform reproduction and independent security review have not been performed. For the mid-project review, use [presentation notes](presentation_notes.md), explain the recorded benchmark scope, and coordinate deployment and integration evidence with the owning teammates. Week 2 session evidence, negative TLS tests and a matched performance comparison remain separate and incomplete.
+
+---
+
 > **Merge verification update:** A later isolated local OpenSSL 4.1.0 server run succeeded for both groups, with certificate and hostname validation: 2/2 measured attempts per mode after one warm-up. See [smoke evidence](../evidence/merge-tls-20261028/README.md). This supersedes the earlier local connectivity blocker only; session freshness, the negative cases, a meaningful comparison, and integrated mesh evidence remain unverified.
 
 # Rectification update — 28 October 2026
