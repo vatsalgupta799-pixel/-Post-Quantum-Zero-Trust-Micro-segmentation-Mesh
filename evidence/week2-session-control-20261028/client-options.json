@@ -1,0 +1,53 @@
+{
+  "default": [
+    {
+      "ms": 1037.5456,
+      "exit": 0,
+      "new_status": true
+    },
+    {
+      "ms": 1033.2449,
+      "exit": 0,
+      "new_status": true
+    },
+    {
+      "ms": 1037.4523,
+      "exit": 0,
+      "new_status": true
+    }
+  ],
+  "noninteractive": [
+    {
+      "ms": 1035.783,
+      "exit": 0,
+      "new_status": true
+    },
+    {
+      "ms": 1035.421,
+      "exit": 0,
+      "new_status": true
+    },
+    {
+      "ms": 1037.1513,
+      "exit": 0,
+      "new_status": true
+    }
+  ],
+  "nocommands": [
+    {
+      "ms": 1035.2566,
+      "exit": 0,
+      "new_status": true
+    },
+    {
+      "ms": 1033.2578,
+      "exit": 0,
+      "new_status": true
+    },
+    {
+      "ms": 1033.5465,
+      "exit": 0,
+      "new_status": true
+    }
+  ]
+}

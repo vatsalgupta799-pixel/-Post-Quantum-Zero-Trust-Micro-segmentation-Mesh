@@ -1,0 +1,19 @@
+TLS Benchmark Summary — HYBRID
+==================================================
+Run ID:          paired-hybrid-combined
+Target:          127.0.0.1:19534
+Expected group:  X25519MLKEM768
+Warmup:          10
+Measured:        100
+Successful:      100
+Failed:          0
+Success rate:    100.0%
+
+Latency Statistics (ms):
+  p50:   1035.1042499999999
+  p95:   1039.8693
+  p99:   1043.5634810000001
+  mean:  1035.689112
+  stdev: 2.4090052943356883
+  min:   1031.912
+  max:   1044.5021

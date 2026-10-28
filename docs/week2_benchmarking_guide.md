@@ -1,8 +1,8 @@
-> **Week 2 update (28 October 2026):** Local OpenSSL positive and negative TLS checks succeeded; session freshness and a matched comparison remain unverified. Process-inclusive timings are not handshake latency. See the [current audit](project_audit_week2.md).
+> **Current local Week 2 result:** TLS 1.3 new/resumed controls passed for both groups; a matched 100-per-mode OpenSSL loopback study is available. It measures process-inclusive duration, not isolated handshake latency. See the [current audit](project_audit_week2.md).
 
-> **Merge resolution:** `benchmark_tls.py` measures one mode per invocation. Runs are sequential, so ordering and time drift can bias comparisons; repeat experiments with reversed run order. The alternate-mode runner from `main` was not adopted because it lacked certificate and hostname verification. All measured failures are written to CSV, cause a nonzero benchmark exit, and prevent the analyzer from reporting a comparison. Existing `results/tls-benchmark-full/20261028-104538` data came from that older `main` runner and does not prove certificate identity; it is not compatible with this harness's raw CSV or a validated comparison. Session reuse remains unknown.
+> **Merge resolution:** `benchmark_tls.py` measures one mode per invocation. Runs are sequential, so ordering and time drift can bias comparisons; repeat experiments with reversed run order. The alternate-mode runner from `main` was not adopted because it lacked certificate and hostname verification. All measured failures are written to CSV, cause a nonzero benchmark exit, and prevent the analyzer from reporting a comparison. Existing `results/tls-benchmark-full/20261028-104538` data came from that older `main` runner and does not prove certificate identity; it is not compatible with this harness's raw CSV or a validated comparison. The verifier records OpenSSL-observed session state; ambiguous status remains unknown.
 
-> **Current rectification update (28 October 2026):** See [the current audit](project_audit_week2.md) for superseding evidence. The OpenSSL timing includes process startup, TCP, TLS, verification, shutdown and parsing; it is not isolated handshake latency. Session reuse is now recorded as unknown and the analyzer rejects it until independent freshness evidence is available. Local TLS positive and negative checks succeeded; a matched comparison remains blocked by session evidence. Older smoke data is historical and cannot establish hostname verification or a defensible tail-latency comparison. Use new output directories and a fresh nonexistent pytest basetemp.
+> **Current rectification update (28 October 2026):** See [the current audit](project_audit_week2.md) for superseding evidence. The OpenSSL timing includes process startup, TCP, TLS, verification, shutdown and parsing; it is not isolated handshake latency. The analyzer rejects resumed or unknown session status. The latest local matched process-duration comparison is recorded in the audit. Older smoke data is historical and cannot establish hostname verification or a defensible tail-latency comparison. Use new output directories and a fresh nonexistent pytest basetemp.
 
 # Week 2: Real TLS Handshake Benchmarking Guide
 
@@ -116,7 +116,7 @@ python scripts/benchmark_tls.py --mode classical --host 127.0.0.1 --port 18443 -
 ```
 
 Inspect `raw.csv` and `verification.json`. Every successful row must show the
-actual group and `certificate_verified=True`. `session_reused` is currently unknown; the analyzer refuses these rows until independent session telemetry is implemented. Do not substitute an assigned boolean.
+actual group and `certificate_verified=True`. `session_reused` records the OpenSSL-observed status; the analyzer rejects resumed or unknown rows. Do not substitute an assigned boolean.
 
 ### Step 4: Run the full experiment
 
@@ -158,13 +158,11 @@ Use a compatible OpenSSL CLI for verification and for every benchmark sample:
 ```
 
 This parses the negotiated-group output from OpenSSL. The benchmark repeats
-the same direct check for each sample; it also uses `-no_ticket` and a new
-process per connection to separate the full-handshake experiment from session
-resumption.
+the same direct check for each sample and parses OpenSSL `New` or `Reused` status. A new process and `-no_ticket` alone are not proof of freshness; unknown or reused sessions are rejected by the analyzer.
 
 ## Analyze Raw Data
 
-Once independent session telemetry is implemented and verified, pass verified raw CSV files to the analysis script. This example is currently blocked:
+Pass verified raw CSV files with observed new-session status to the analysis script. This endpoint-dependent example is illustrative and was not itself run:
 
 ```powershell
 python scripts/analyze_tls_results.py --classical-csv results/week2/classical-verified/raw.csv --hybrid-csv results/week2/hybrid-verified/raw.csv --output-dir results/week2/comparison-new

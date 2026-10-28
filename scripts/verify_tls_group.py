@@ -59,6 +59,30 @@ NEGOTIATED_GROUP_PATTERNS = (
 )
 
 
+def _session_status(output: str) -> bool | None:
+    """Read OpenSSL's completed TLS 1.3 session status, rejecting ambiguity."""
+    states = re.findall(r"(?im)^\s*(New|Reused),\s*TLSv1\.3,\s*Cipher\s+is\s+[^\r\n]+$", output)
+    normalized = {state.lower() for state in states}
+    if normalized == {"new"}:
+        return False
+    if normalized == {"reused"}:
+        return True
+    return None
+
+
+def _sanitized_output(output: str) -> str:
+    """Retain only non-secret verification lines from verbose client output."""
+    allowed = re.compile(
+        r"^(?:CONNECTION ESTABLISHED|Protocol(?: version)?:\s*TLSv[\d.]+|"
+        r"(?:New|Reused),\s*TLSv1\.3,\s*Cipher is [A-Za-z0-9_-]+|"
+        r"(?:Peer|Server) Temp Key:\s*[A-Za-z0-9_-]+(?:,\s*\d+ bits)?|"
+        r"Negotiated TLS1\.3 group:\s*[A-Za-z0-9_-]+|"
+        r"Verification:\s*OK|Verified peername:\s*[^\s]+|"
+        r"Verify return code:\s*0\s*\(ok\))$", re.IGNORECASE,
+    )
+    return "\n".join(line.strip() for line in output.splitlines() if allowed.fullmatch(line.strip()))[:2000]
+
+
 # ---------------------------------------------------------------------------
 # Python ssl verification
 # ---------------------------------------------------------------------------
@@ -93,6 +117,7 @@ def _verify_with_python_ssl(
         "certificate_verified": False,
         "connection_succeeded": False,
         "new_handshake": None,
+        "session_reused": None,
         "error": None,
         "openssl_backend": ssl.OPENSSL_VERSION,
     }
@@ -177,9 +202,8 @@ def _verify_with_openssl(
 ) -> dict:
     """Verify negotiated group using `openssl s_client`.
 
-    openssl s_client -connect HOST:PORT -tls1_3 -groups GROUP -brief
-    prints the negotiated group in its output, so it serves as reliable
-    evidence of the server's actual selection.
+    OpenSSL's normal output provides the negotiated group and session status.
+    Only sanitized verification lines are retained in the returned result.
     """
     expected_group = EXPECTED_GROUPS[mode]
     openssl_path = _find_openssl(openssl_path)
@@ -197,6 +221,7 @@ def _verify_with_openssl(
         "certificate_verified": False,
         "connection_succeeded": False,
         "new_handshake": None,
+        "session_reused": None,
         "error": None,
         "openssl_path": openssl_path,
     }
@@ -214,7 +239,6 @@ def _verify_with_openssl(
         "-tls1_3",
         "-groups", expected_group,
         "-servername", server_name,
-        "-brief",
         "-no_ticket",
         "-verify_return_error",
     ]
@@ -241,6 +265,11 @@ def _verify_with_openssl(
         )
         output = proc.stdout + "\n" + proc.stderr
 
+        reused = _session_status(output)
+        if proc.returncode == 0 and reused is not None:
+            result["session_reused"] = reused
+            result["new_handshake"] = not reused
+
         # Parse TLS version
         tls_match = re.search(
             r"Protocol(?:\s+version)?\s*:\s*(TLSv[\d.]+)",
@@ -249,6 +278,8 @@ def _verify_with_openssl(
         )
         if tls_match:
             result["tls_version"] = tls_match.group(1)
+        elif reused is not None:
+            result["tls_version"] = "TLSv1.3"
 
         # Parse negotiated group — openssl reports as "Server Temp Key:"
         # or "Negotiated group:" depending on version
@@ -259,25 +290,28 @@ def _verify_with_openssl(
                 break
 
         # OpenSSL's normal and --brief formats use different success text.
-        if (
+        if proc.returncode == 0 and (
             re.search(r"Verify return code:\s*0\s", output)
             or re.search(r"Verification:\s*OK", output, re.IGNORECASE)
         ):
             result["certificate_verified"] = True
 
-        if proc.returncode == 0 and re.search(r"CONNECTION ESTABLISHED", output, re.IGNORECASE):
+        if proc.returncode == 0 and (re.search(r"CONNECTION ESTABLISHED", output, re.IGNORECASE) or reused is not None):
             result["connection_succeeded"] = True
         elif proc.returncode != 0:
             result["error"] = f"openssl s_client exited with status {proc.returncode}"
+
+        if not result["connection_succeeded"]:
+            result["certificate_verified"] = False
 
         # Verify the negotiated group matches the expected one
         if result["negotiated_group"]:
             actual_group = result["negotiated_group"]
             # Normalize — some openssl versions report differently
-            if actual_group.lower() == expected_group.lower():
+            if result["connection_succeeded"] and actual_group.lower() == expected_group.lower():
                 result["negotiated_group_verified"] = True
 
-        result["raw_output_snippet"] = output[:2000]
+        result["raw_output_snippet"] = _sanitized_output(output)
 
     except subprocess.TimeoutExpired:
         result["error"] = f"openssl s_client timed out after {timeout}s"

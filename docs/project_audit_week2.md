@@ -1,3 +1,25 @@
+# Local Week 2 session and comparison update — 28 October 2026
+
+**Readiness: local process-duration comparison available; isolated handshake latency and integrated mesh comparison remain incomplete.** This update supersedes inconsistent historical sections below.
+
+- At baseline, `main` matched the Week 2 commit 5e5f952 and `.\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp .tmp/local-week2-baseline-unique-20261028 --tb=short` passed 130 tests in 1.40 s, with no reported failures, skips or warnings. After changes, the same command using the new `.tmp/local-week2-verified-unique-20261028` base passed **140 tests in 1.08 s**, with no reported failures, skips or warnings. Environment: Windows 11 AMD64, Python 3.13.12, cryptography 50.0.2, pytest 8.4.2, client and server OpenSSL 4.1.0; Python SSL OpenSSL 3.0.18. `pip check` reported no broken dependencies.
+- [Session controls](../evidence/week2-session-control-20261028/README.md) show TLS 1.3 `New` and ticket-resumed `Reused` for each group using a trusted localhost certificate; temporary session files were removed. The verifier now parses only unambiguous OpenSSL session-status lines and saves only allowlisted non-secret output. The existing CSV `session_reused` field represents observed false/true/unknown; the analyzer rejects resumed and unknown samples.
+- Final local verifier tests: both modes succeeded with TLS 1.3, the expected group, certificate and hostname validation and new status. Wrong hostname, unrelated CA and an X25519-only server for a hybrid request failed. OpenSSL printed `Verification: OK` on the failed group handshake; the first diagnostic recorded a misleading certificate flag even though the connection was rejected. The verifier was fixed to clear certificate and group verification flags on failed connections; the repeated wrong-group check confirmed both false. These are loopback checks, not Envoy/mTLS proof.
+- The [matched local experiment](../results/week2/local-openssl41-paired-20261028/README.md) recorded 100 measured attempts per mode, all successful, new, certificate- and group-verified; four blocks followed hybrid/classical/classical/hybrid with 5 excluded warm-ups and a preflight each. Client and server were OpenSSL 4.1.0, IPv4 loopback, same ephemeral trusted certificate and server configuration, no authorization or client authentication. Raw observations, block metadata, verification evidence, summaries and charts are preserved. A raw-row recalculation confirmed p50, p95, p99, mean, sample standard deviation and differences.
+- p50 process duration was 1035.6246 ms classical and 1035.1042 ms hybrid; difference -0.5204 ms (-0.0502%). p95 was 1050.6977 vs 1039.8693 ms; p99 1055.2880 vs 1043.5635 ms. These are descriptive process-inclusive observations, not an isolated handshake comparison. Only 100 samples per mode were collected because 1,000 per mode would take roughly 35 minutes at one second per attempt; p95/p99 are exploratory and cannot establish hybrid handshake overhead.
+- `perf_counter_ns` spans the entire client verifier, including process startup, TCP, TLS, certificate checks, output capture, termination and parsing. Prior milestone diagnostics showed group output at about 27–31 ms and `DONE` around one second later; adding `-no-interactive` or `-nocommands` did not remove that delay. The cause remains unknown; no reliable handshake-only timer was implemented.
+
+| Work item | Status | Remaining work |
+| --- | --- | --- |
+| TLS 1.3 session control | Verified locally for both groups | Revalidate with other clients/servers before generalizing |
+| Per-sample status | New/reused/unknown observed; analyzer rejects resumed/unknown | Confirm equivalent telemetry on target server |
+| Local matched process duration | 100/100 success per mode, raw and charts preserved | Larger independent repetitions; investigate shutdown and timing isolation |
+| Integrated mesh | Outside this local task | Team-provided Envoy, policy, deployment and capture evidence remains required |
+
+For review, demonstrate the controls and local observations with the stated limits. Do not claim an isolated TLS handshake performance result, production readiness, or integrated mesh completion.
+
+---
+
 # Week 2 verification update — 28 October 2026
 
 **Readiness: partial.** Local TLS identity and negative checks now have direct evidence. The planned comparative benchmark and integrated mesh review remain blocked by session evidence and team inputs. This update supersedes inconsistent older sections, preserved below.

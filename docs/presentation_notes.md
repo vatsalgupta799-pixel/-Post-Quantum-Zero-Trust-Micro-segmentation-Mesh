@@ -1,4 +1,4 @@
-> **Week 2 update (28 October 2026):** Local OpenSSL positive and negative TLS checks succeeded; session freshness and a matched comparison remain unverified. Process-inclusive timings are not handshake latency. See the [current audit](project_audit_week2.md).
+> **Current local Week 2 result:** TLS 1.3 new/resumed controls passed for both groups; a matched 100-per-mode OpenSSL loopback study is available. It measures process-inclusive duration, not isolated handshake latency. See the [current audit](project_audit_week2.md).
 
 # Task 4 Presentation Notes
 
