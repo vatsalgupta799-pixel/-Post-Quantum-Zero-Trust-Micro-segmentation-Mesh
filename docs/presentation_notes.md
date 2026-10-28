@@ -1,3 +1,5 @@
+> **Week 2 update (28 October 2026):** Local OpenSSL positive and negative TLS checks succeeded; session freshness and a matched comparison remain unverified. Process-inclusive timings are not handshake latency. See the [current audit](project_audit_week2.md).
+
 # Task 4 Presentation Notes
 
 ## Suggested 5–7 minute outline
@@ -73,9 +75,7 @@ Kubernetes performance.
 ### 7. Security limitations — 45 seconds
 
 This is not production-ready TLS or mTLS. Successful key agreement does not
-authenticate the participants. The project has no certificate validation,
-network protocol, key confirmation, replay protection, key lifecycle, Vault
-integration, or independent cryptographic audit. Refer to
+authenticate the participants. The in-memory prototype has no peer authentication, network protocol, key confirmation, replay protection, key lifecycle, Vault integration, or independent cryptographic audit. The separate TLS verifier performs certificate validation; it does not authenticate this prototype. Refer to
 `docs/security_limitations.md` rather than overstating the result.
 
 ### 8. Wider Zero-Trust project integration — 40 seconds
@@ -93,8 +93,7 @@ as implemented by Task 4.
 
 ### 9. Conclusion and future work — 30 seconds
 
-The project verifies a reproducible local hybrid key-establishment
-demonstration, automated tests, and measured local overhead. Next steps are a
+The project demonstrates local hybrid key establishment and passing tests in a freshly installed Windows environment. The preserved Week 1 measurements show in-process operation costs only. Next steps are a
 reviewed hybrid TLS path, certificate-based authentication, deliberate key
 lifecycle design, end-to-end integration testing, and deployment validation.
 

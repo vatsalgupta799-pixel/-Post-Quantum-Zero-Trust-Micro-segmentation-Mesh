@@ -7,7 +7,7 @@ production-ready hybrid construction.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from hashlib import sha256
 from typing import Final
 
@@ -37,20 +37,20 @@ X25519_SHARED_SECRET_LENGTH: Final[int] = 32
 
 
 @dataclass(frozen=True)
-class HybridExchangeResult:
+class _HybridExchangeSecrets:
     """In-memory results from a successful simulated hybrid exchange.
 
     Shared secrets and session keys are present solely so local callers can
     verify agreement. They must not be logged, persisted, or transmitted.
     """
 
-    x25519_shared_secret_a: bytes
-    x25519_shared_secret_b: bytes
-    mlkem_shared_secret_a: bytes
-    mlkem_shared_secret_b: bytes
+    x25519_shared_secret_a: bytes = field(repr=False)
+    x25519_shared_secret_b: bytes = field(repr=False)
+    mlkem_shared_secret_a: bytes = field(repr=False)
+    mlkem_shared_secret_b: bytes = field(repr=False)
     transcript: bytes
-    session_key_a: bytes
-    session_key_b: bytes
+    session_key_a: bytes = field(repr=False)
+    session_key_b: bytes = field(repr=False)
 
 
 def _required_bytes(value: bytes, name: str) -> bytes:
@@ -139,7 +139,7 @@ def derive_hybrid_session_key(
     )
 
 
-def perform_hybrid_exchange() -> HybridExchangeResult:
+def _perform_hybrid_exchange() -> _HybridExchangeSecrets:
     """Run a complete local two-service hybrid key-establishment exchange.
 
     Cryptographic failures propagate to the caller. If either component or the
@@ -192,7 +192,7 @@ def perform_hybrid_exchange() -> HybridExchangeResult:
     if session_key_a != session_key_b:
         raise RuntimeError("hybrid session keys do not match")
 
-    return HybridExchangeResult(
+    return _HybridExchangeSecrets(
         x25519_shared_secret_a=x25519_secret_a,
         x25519_shared_secret_b=x25519_secret_b,
         mlkem_shared_secret_a=encapsulation.shared_secret,
@@ -201,3 +201,16 @@ def perform_hybrid_exchange() -> HybridExchangeResult:
         session_key_a=session_key_a,
         session_key_b=session_key_b,
     )
+
+
+@dataclass(frozen=True)
+class HybridExchangeResult:
+    """Non-secret outcome of the local educational exchange."""
+    success: bool
+    session_key_length: int
+
+
+def perform_hybrid_exchange() -> HybridExchangeResult:
+    """Run both components and return only public agreement metadata."""
+    result = _perform_hybrid_exchange()
+    return HybridExchangeResult(success=True, session_key_length=len(result.session_key_a))

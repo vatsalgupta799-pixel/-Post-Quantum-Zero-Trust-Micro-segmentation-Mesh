@@ -1,3 +1,9 @@
+> **Week 2 update (28 October 2026):** Local OpenSSL positive and negative TLS checks succeeded; session freshness and a matched comparison remain unverified. Process-inclusive timings are not handshake latency. See the [current audit](docs/project_audit_week2.md).
+
+> **Week 1 reproduction (28 October 2026):** The declared requirements were installed into a new local `.venv` on Windows, and the tests and four demos were run using that environment. See the [reproduction checklist](docs/reproducibility_checklist.md) for exact commands and limitations. The in-memory hybrid exchange is unauthenticated educational code, not production TLS or mTLS; its in-process benchmark is not a TLS or network measurement.
+
+> **Current Week 2 status:** See [the audit update](docs/project_audit_week2.md). Local TLS smoke verification succeeded; a matched comparison remains incomplete; the process-inclusive smoke measurements are not handshake latency. Session freshness is unknown.
+
 # Post-Quantum Zero-Trust Microsegmentation Mesh
 
 ## Task 4 — Hybrid Key Exchange Demonstration
@@ -252,6 +258,66 @@ sizes or observed network traffic. These local measurements include Python and
 installed-library overhead but do not measure network latency, TLS, Envoy,
 Kubernetes, certificates, or authentication.
 
+## Week 2 — Real TLS Handshake Benchmarking
+
+Week 2 adds a separate, fail-closed harness for real TLS 1.3
+connection-establishment measurements. It compares X25519 only with
+X25519MLKEM768 only; every successful sample is validated by an OpenSSL client
+that reports the actual negotiated group and certificate-verification result.
+It does not reinterpret Day 5 in-process results as TLS measurements.
+
+**Stored classical baseline:** 1,000 fresh TLS 1.3 connections configured for
+X25519 over localhost, 100% success rate, median (p50) latency 15.36 ms. It
+is retained as a configuration-restricted baseline, not direct named-group
+evidence, because the machine has no OpenSSL CLI that can report the group.
+
+**Hybrid smoke test complete:** Python remains linked to OpenSSL 3.0.18 and
+cannot configure `X25519MLKEM768`, but the harness now uses an installed
+OpenSSL 4.1.0 CLI for direct TLS evidence. A local, certificate-validated
+three-sample smoke test negotiated `X25519MLKEM768` on every attempt. Its raw
+observations and comparison are stored in
+`results/week2/openssl41-local-smoke/`. This establishes local capability,
+not a statistically meaningful performance result or an Envoy measurement.
+
+### Quick start — local classical test
+
+~~~powershell
+# Terminal 1: start a local TLS 1.3 server (auto-generates self-signed cert)
+python scripts\local_tls_server.py --port 18443 --group X25519
+
+# Terminal 2: a compatible OpenSSL CLI is required for direct evidence.
+$openssl = "C:\path\to\openssl.exe"
+python scripts\verify_tls_group.py --mode classical --host 127.0.0.1 --port 18443 --server-name localhost --ca-file .tmp\tls-test\cert.pem --use-openssl --openssl-path $openssl
+python scripts\benchmark_tls.py --mode classical --host 127.0.0.1 --port 18443 --server-name localhost --ca-file .tmp\tls-test\cert.pem --openssl-path $openssl --warmup 100 --iterations 1000 --timeout 10 --output-dir results\week2\classical-verified
+~~~
+
+### Running against an external endpoint
+
+Replace placeholders with team-provided values:
+
+~~~powershell
+python scripts\verify_tls_group.py --mode classical --host HOST --port 8443 --server-name HOST --ca-file /path/to/ca.pem --use-openssl --openssl-path /path/to/openssl
+python scripts\verify_tls_group.py --mode hybrid --host HOST --port 8443 --server-name HOST --ca-file /path/to/ca.pem --use-openssl --openssl-path /path/to/openssl
+python scripts\benchmark_tls.py --mode classical --host HOST --port 8443 --server-name HOST --ca-file /path/to/ca.pem --openssl-path /path/to/openssl --warmup 100 --iterations 1000 --timeout 10 --output-dir results\week2\classical-verified
+python scripts\benchmark_tls.py --mode hybrid --host HOST --port 8443 --server-name HOST --ca-file /path/to/ca.pem --openssl-path /path/to/openssl --warmup 100 --iterations 1000 --timeout 10 --output-dir results\week2\hybrid-verified
+
+~~~
+
+The analyzer cannot accept new runs until independently observed session freshness is implemented; the benchmark commands above require a verified endpoint and were not validated in this environment.
+
+For mTLS, provide the approved --client-cert and --client-key values to both
+modes. Do not disable certificate validation, and stop if verification does
+not report TLS 1.3 plus the expected exact group. See
+[the Week 2 benchmarking guide](docs/week2_benchmarking_guide.md) and
+[the benchmark report](docs/week2_benchmark_report.md) for the controlled
+method, results, limitations, and handover requirements.
+
+Run the Week 2 focused tests:
+
+~~~powershell
+python -m pytest tests\test_tls_benchmark.py -v
+~~~
+
 ## Day 6 — Integration Readiness
 
 Day 6 adds a small, safe application-facing interface in
@@ -342,23 +408,35 @@ hybrid-key-exchange/
 │   ├── test_mlkem.py            # Day 3 ML-KEM-768 tests
 │   ├── test_hybrid.py           # Day 4 hybrid exchange tests
 │   ├── test_benchmark.py        # Day 5 benchmark checks
-│   └── test_integration.py      # Day 6 integration checks
+│   ├── test_integration.py      # Day 6 integration checks
+│   └── test_tls_benchmark.py    # Week 2 TLS benchmarking tests
 ├── scripts/
 │   ├── check_environment.py
 │   ├── demo_ecdh.py
 │   ├── demo_mlkem.py            # Day 3 ML-KEM-768 demonstration
 │   ├── demo_hybrid.py           # Day 4 hybrid demonstration
 │   ├── benchmark.py             # Day 5 measurement runner
-│   └── plot_benchmarks.py       # Day 5 CSV chart generator
+│   ├── plot_benchmarks.py       # Day 5 CSV chart generator
+│   ├── local_tls_server.py      # Week 2 ephemeral local TLS 1.3 server
+│   ├── verify_tls_group.py      # Week 2 TLS group verification
+│   ├── benchmark_tls.py         # Week 2 process-inclusive TLS benchmark harness
+│   └── analyze_tls_results.py   # Week 2 comparative analysis and charts
 ├── docs/
 │   ├── architecture.md
-│   ├── benchmark_report.md      # Generated from an actual benchmark run
+│   ├── benchmark_report.md      # Day 5 local measurements report
+│   ├── week2_benchmark_report.md  # Week 2 TLS benchmark report
+│   ├── week2_benchmarking_guide.md # Week 2 reproduction guide
 │   ├── integration_guide.md     # Day 6 teammate integration boundary
 │   ├── presentation_notes.md    # Day 7 capstone outline and viva answers
 │   ├── reproducibility_checklist.md
 │   └── security_limitations.md
 ├── results/
-│   └── .gitkeep
+│   ├── .gitkeep
+│   └── week2/                   # Week 2 TLS measurement results
+│       ├── classical-full/      # 1,000-sample classical (X25519) run
+│       └── comparison/          # Comparative analysis (when hybrid available)
+├── evidence/
+│   └── envoy-pqc-build-verification.txt
 ├── .gitignore
 ├── requirements.txt
 ├── README.md
@@ -494,7 +572,7 @@ Planned next steps:
 ## Limitations
 
 This repository does not implement post-quantum mTLS, certificate
-authentication, symmetric encryption, or service-mesh deployment. The Day 4
+authentication or service-mesh deployment. A separate local AES-GCM demonstration exists. The Day 4
 hybrid flow establishes a matching session key in a local simulation, but it
 does not authenticate services or provide a complete secure channel.
 `cryptography`'s low-level asymmetric APIs require careful protocol design,

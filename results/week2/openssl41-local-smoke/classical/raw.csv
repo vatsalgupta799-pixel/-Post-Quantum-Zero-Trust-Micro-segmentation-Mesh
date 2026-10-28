@@ -1,0 +1,4 @@
+run_id,timestamp_utc,mode,attempt,success,latency_ms,tls_version,negotiated_group,certificate_verified,session_reused,error_type
+local-classical-openssl41-smoke,2026-10-28T09:57:33.852003+00:00,classical,1,True,1037.018400,TLSv1.3,"X25519,",True,False,
+local-classical-openssl41-smoke,2026-10-28T09:57:34.889065+00:00,classical,2,True,1042.305700,TLSv1.3,"X25519,",True,False,
+local-classical-openssl41-smoke,2026-10-28T09:57:35.931408+00:00,classical,3,True,1055.339500,TLSv1.3,"X25519,",True,False,

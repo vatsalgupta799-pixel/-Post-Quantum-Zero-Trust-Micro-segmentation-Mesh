@@ -1,0 +1,211 @@
+{
+  "client_server_version": "OpenSSL 4.1.0 23 Oct 2026 (Library: OpenSSL 4.1.0 23 Oct 2026)",
+  "server_configuration": "OpenSSL s_server -tls1_3 -groups X25519:X25519MLKEM768 -www; wrong-group server X25519 only; loopback; self-signed localhost certificate explicitly trusted",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python_ssl": "OpenSSL 3.0.18 30 Sep 2025",
+  "cases": {
+    "classical": {
+      "method": "openssl_s_client",
+      "host": "127.0.0.1",
+      "port": 19523,
+      "server_name": "localhost",
+      "mode": "classical",
+      "expected_group": "X25519",
+      "tls_version": "TLSv1.3",
+      "negotiated_group": "X25519",
+      "negotiated_group_verified": true,
+      "certificate_verified": true,
+      "connection_succeeded": true,
+      "new_handshake": null,
+      "error": null,
+      "openssl_path": "C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe",
+      "raw_output_snippet": "\nCONNECTION ESTABLISHED\nProtocol version: TLSv1.3\nCiphersuite: TLS_AES_256_GCM_SHA384\nPeer certificate: CN=localhost\nHash used: SHA256\nSignature type: ecdsa_secp256r1_sha256\nVerification: OK\nVerified peername: localhost\nPeer Temp Key: X25519, 253 bits\nDONE\n"
+    },
+    "hybrid": {
+      "method": "openssl_s_client",
+      "host": "127.0.0.1",
+      "port": 19523,
+      "server_name": "localhost",
+      "mode": "hybrid",
+      "expected_group": "X25519MLKEM768",
+      "tls_version": "TLSv1.3",
+      "negotiated_group": "X25519MLKEM768",
+      "negotiated_group_verified": true,
+      "certificate_verified": true,
+      "connection_succeeded": true,
+      "new_handshake": null,
+      "error": null,
+      "openssl_path": "C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe",
+      "raw_output_snippet": "\nCONNECTION ESTABLISHED\nProtocol version: TLSv1.3\nCiphersuite: TLS_AES_256_GCM_SHA384\nPeer certificate: CN=localhost\nHash used: SHA256\nSignature type: ecdsa_secp256r1_sha256\nVerification: OK\nVerified peername: localhost\nNegotiated TLS1.3 group: X25519MLKEM768\nDONE\n"
+    },
+    "wrong_hostname": {
+      "method": "openssl_s_client",
+      "host": "127.0.0.1",
+      "port": 19523,
+      "server_name": "wrong.example",
+      "mode": "classical",
+      "expected_group": "X25519",
+      "tls_version": null,
+      "negotiated_group": null,
+      "negotiated_group_verified": false,
+      "certificate_verified": false,
+      "connection_succeeded": false,
+      "new_handshake": null,
+      "error": "openssl s_client exited with status 1",
+      "openssl_path": "C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe",
+      "raw_output_snippet": "\ndepth=0 CN=localhost\nverify error:num=62:hostname mismatch\nC8290000:error:0A000086:SSL routines:tls_post_process_server_certificate:certificate verify failed:ssl\\statem\\statem_clnt.c:2636:\n"
+    },
+    "untrusted_ca": {
+      "method": "openssl_s_client",
+      "host": "127.0.0.1",
+      "port": 19523,
+      "server_name": "localhost",
+      "mode": "classical",
+      "expected_group": "X25519",
+      "tls_version": null,
+      "negotiated_group": null,
+      "negotiated_group_verified": false,
+      "certificate_verified": false,
+      "connection_succeeded": false,
+      "new_handshake": null,
+      "error": "openssl s_client exited with status 1",
+      "openssl_path": "C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe",
+      "raw_output_snippet": "\ndepth=0 CN=localhost\nverify error:num=18:self-signed certificate\n00390000:error:0A000086:SSL routines:tls_post_process_server_certificate:certificate verify failed:ssl\\statem\\statem_clnt.c:2636:\n"
+    },
+    "wrong_group": {
+      "method": "openssl_s_client",
+      "host": "127.0.0.1",
+      "port": 19523,
+      "server_name": "localhost",
+      "mode": "hybrid",
+      "expected_group": "X25519MLKEM768",
+      "tls_version": null,
+      "negotiated_group": null,
+      "negotiated_group_verified": false,
+      "certificate_verified": false,
+      "connection_succeeded": false,
+      "new_handshake": null,
+      "error": "openssl s_client exited with status 1",
+      "openssl_path": "C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe",
+      "raw_output_snippet": "\nFC2A0000:error:0A000410:SSL routines:ssl3_read_bytes:tls alert handshake failure:ssl\\record\\rec_layer_s3.c:910:SSL alert number 40\n"
+    }
+  },
+  "version_process_ms": [
+    21.0301,
+    19.9327,
+    20.3618
+  ],
+  "timing_trials": {
+    "brief": [
+      {
+        "exit": 0,
+        "elapsed_ms": 1033.4836,
+        "status_lines": [
+          "CONNECTION ESTABLISHED",
+          "Protocol version: TLSv1.3",
+          "Verification: OK",
+          "Verified peername: localhost",
+          "Peer Temp Key: X25519, 253 bits"
+        ]
+      },
+      {
+        "exit": 0,
+        "elapsed_ms": 1031.9687,
+        "status_lines": [
+          "CONNECTION ESTABLISHED",
+          "Protocol version: TLSv1.3",
+          "Verification: OK",
+          "Verified peername: localhost",
+          "Peer Temp Key: X25519, 253 bits"
+        ]
+      },
+      {
+        "exit": 0,
+        "elapsed_ms": 1033.1267,
+        "status_lines": [
+          "CONNECTION ESTABLISHED",
+          "Protocol version: TLSv1.3",
+          "Verification: OK",
+          "Verified peername: localhost",
+          "Peer Temp Key: X25519, 253 bits"
+        ]
+      }
+    ],
+    "brief_no_ign_eof": [
+      {
+        "exit": 0,
+        "elapsed_ms": 1045.9043,
+        "status_lines": [
+          "CONNECTION ESTABLISHED",
+          "Protocol version: TLSv1.3",
+          "Verification: OK",
+          "Verified peername: localhost",
+          "Peer Temp Key: X25519, 253 bits"
+        ]
+      },
+      {
+        "exit": 0,
+        "elapsed_ms": 1032.4428,
+        "status_lines": [
+          "CONNECTION ESTABLISHED",
+          "Protocol version: TLSv1.3",
+          "Verification: OK",
+          "Verified peername: localhost",
+          "Peer Temp Key: X25519, 253 bits"
+        ]
+      },
+      {
+        "exit": 0,
+        "elapsed_ms": 1032.9315,
+        "status_lines": [
+          "CONNECTION ESTABLISHED",
+          "Protocol version: TLSv1.3",
+          "Verification: OK",
+          "Verified peername: localhost",
+          "Peer Temp Key: X25519, 253 bits"
+        ]
+      }
+    ],
+    "normal": [
+      {
+        "exit": 0,
+        "elapsed_ms": 1034.0138,
+        "status_lines": [
+          "Peer Temp Key: X25519, 253 bits",
+          "Verification: OK",
+          "Verified peername: localhost",
+          "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+          "Verify return code: 0 (ok)",
+          "Verify return code: 0 (ok)",
+          "Verify return code: 0 (ok)"
+        ]
+      },
+      {
+        "exit": 0,
+        "elapsed_ms": 1032.3694,
+        "status_lines": [
+          "Peer Temp Key: X25519, 253 bits",
+          "Verification: OK",
+          "Verified peername: localhost",
+          "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+          "Verify return code: 0 (ok)",
+          "Verify return code: 0 (ok)",
+          "Verify return code: 0 (ok)"
+        ]
+      },
+      {
+        "exit": 0,
+        "elapsed_ms": 1040.0292,
+        "status_lines": [
+          "Peer Temp Key: X25519, 253 bits",
+          "Verification: OK",
+          "Verified peername: localhost",
+          "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384",
+          "Verify return code: 0 (ok)",
+          "Verify return code: 0 (ok)",
+          "Verify return code: 0 (ok)"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+TLS Benchmark Summary — HYBRID
+==================================================
+Run ID:          local-hybrid-openssl41-smoke
+Target:          127.0.0.1:18444
+Expected group:  X25519MLKEM768
+Warmup:          1
+Measured:        3
+Successful:      3
+Failed:          0
+Success rate:    100.0%
+
+Latency Statistics (ms):
+  p50:   1066.1231
+  p95:   1088.6356999999998
+  p99:   1090.63682
+  mean:  1062.8201999999999
+  stdev: 30.104548876041964
+  min:   1031.2004
+  max:   1091.1371
