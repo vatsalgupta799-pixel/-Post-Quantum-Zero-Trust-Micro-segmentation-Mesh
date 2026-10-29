@@ -1,0 +1,18 @@
+{
+  "method": "openssl_s_client",
+  "host": "127.0.0.1",
+  "port": 19535,
+  "server_name": "localhost",
+  "mode": "hybrid",
+  "expected_group": "X25519MLKEM768",
+  "tls_version": "TLSv1.3",
+  "negotiated_group": null,
+  "negotiated_group_verified": false,
+  "certificate_verified": true,
+  "connection_succeeded": false,
+  "new_handshake": null,
+  "session_reused": null,
+  "error": "openssl s_client exited with status 1",
+  "openssl_path": "C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe",
+  "raw_output_snippet": "Verification: OK\nProtocol: TLSv1.3\nVerify return code: 0 (ok)"
+}

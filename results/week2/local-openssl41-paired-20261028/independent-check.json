@@ -1,0 +1,44 @@
+{
+  "classical": {
+    "attempts": 100,
+    "failures": 0,
+    "unknown_or_resumed": 0,
+    "mean_ms": 1037.430024,
+    "stddev_ms": 5.685548504550823,
+    "p50_ms": 1035.6246,
+    "p95_ms": 1050.697675,
+    "p99_ms": 1055.2880040000002,
+    "min_ms": 1032.12,
+    "max_ms": 1072.0788
+  },
+  "hybrid": {
+    "attempts": 100,
+    "failures": 0,
+    "unknown_or_resumed": 0,
+    "mean_ms": 1035.689112,
+    "stddev_ms": 2.4090052943356883,
+    "p50_ms": 1035.1042499999999,
+    "p95_ms": 1039.8693,
+    "p99_ms": 1043.5634810000001,
+    "min_ms": 1031.912,
+    "max_ms": 1044.5021
+  },
+  "differences": {
+    "p50_ms": {
+      "hybrid_minus_classical_ms": -0.520350000000235,
+      "relative_percent": -0.05024504052918741
+    },
+    "p95_ms": {
+      "hybrid_minus_classical_ms": -10.828374999999824,
+      "relative_percent": -1.0305890321875724
+    },
+    "p99_ms": {
+      "hybrid_minus_classical_ms": -11.72452300000009,
+      "relative_percent": -1.1110258958274
+    },
+    "mean_ms": {
+      "hybrid_minus_classical_ms": -1.7409119999999803,
+      "relative_percent": -0.16781006523096156
+    }
+  }
+}
