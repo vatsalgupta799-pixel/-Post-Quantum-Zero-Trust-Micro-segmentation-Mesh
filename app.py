@@ -821,7 +821,7 @@ if search_query:
     )
     filtered_df = filtered_df[search_mask]
 
-st.dataframe(filtered_df, use_container_width=True, hide_index=True)
+st.dataframe(filtered_df, width="stretch", hide_index=True)
 
 st.caption("Development mode: all displayed events are simulated sample data.")
 
@@ -841,7 +841,7 @@ if not critical_events.empty:
     st.error(
         f"Warning: {len(critical_events)} critical security event(s) detected!"
     )
-    st.dataframe(critical_events, use_container_width=True, hide_index=True)
+    st.dataframe(critical_events, width="stretch", hide_index=True)
 else:
     st.success("No critical security events detected.")
     # Security Event Summary
