@@ -1,0 +1,19 @@
+TLS Benchmark Summary — CLASSICAL
+==================================================
+Run ID:          9bc9beb3c469
+Target:          127.0.0.1:18444
+Expected group:  X25519
+Warmup:          3
+Measured:        10
+Successful:      10
+Failed:          0
+Success rate:    100.0%
+
+Latency Statistics (ms):
+  p50:   1084.8686
+  p95:   1097.58707
+  p99:   1099.710854
+  mean:  1086.72362
+  stdev: 6.328216618676148
+  min:   1080.6553
+  max:   1100.2418

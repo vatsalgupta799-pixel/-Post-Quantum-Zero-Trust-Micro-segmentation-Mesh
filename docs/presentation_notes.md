@@ -1,4 +1,6 @@
-> **Current local Week 2 result:** TLS 1.3 new/resumed controls passed for both groups; a matched 100-per-mode OpenSSL loopback study is available. It measures process-inclusive duration, not isolated handshake latency. See the [current audit](project_audit_week2.md).
+> **Week 2 review:** Use the [benchmark handover](week2_review_handover.md)
+> for the two verified Envoy handshake runs, their Tailscale relay limitations,
+> and a suggested presentation outline. The notes below cover Week 1.
 
 # Task 4 Presentation Notes
 

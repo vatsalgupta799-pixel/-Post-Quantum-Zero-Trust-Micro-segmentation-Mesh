@@ -1,0 +1,18 @@
+{
+  "method": "openssl_s_client",
+  "host": "192.168.162.128",
+  "port": 8444,
+  "server_name": "localhost",
+  "mode": "hybrid",
+  "expected_group": "X25519MLKEM768",
+  "tls_version": null,
+  "negotiated_group": null,
+  "negotiated_group_verified": false,
+  "certificate_verified": false,
+  "connection_succeeded": false,
+  "new_handshake": null,
+  "session_reused": null,
+  "error": "openssl s_client timed out after 5.0s",
+  "openssl_path": "C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe",
+  "timestamp_utc": "2026-11-01T12:41:26.372255+00:00"
+}

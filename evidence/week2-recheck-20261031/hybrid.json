@@ -1,0 +1,18 @@
+{
+  "method": "openssl_s_client",
+  "host": "127.0.0.1",
+  "port": 19593,
+  "server_name": "localhost",
+  "mode": "hybrid",
+  "expected_group": "X25519MLKEM768",
+  "tls_version": "TLSv1.3",
+  "negotiated_group": "X25519MLKEM768",
+  "negotiated_group_verified": true,
+  "certificate_verified": true,
+  "connection_succeeded": true,
+  "new_handshake": true,
+  "session_reused": false,
+  "error": null,
+  "openssl_path": "C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe",
+  "timestamp_utc": "2026-10-31T07:40:55.960520+00:00"
+}

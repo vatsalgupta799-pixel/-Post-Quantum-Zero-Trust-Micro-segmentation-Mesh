@@ -1,3 +1,16 @@
+> **Envoy update:** The instrumented client was used for 100 verified new
+> handshakes per group against the team's Envoy endpoint over Tailscale. See
+> [the run report](../results/week2/envoy-tailscale-20261101/README.md) for the
+> actual measurements, relay limitations, raw data and reproduction steps.
+
+> **1 November update:** A separate experimental Windows/OpenSSL 4 client now
+> measures TLS handshake completion after TCP connects and checks the actual
+> group, hostname, certificate and session reuse. A 1,000-per-mode local
+> OpenSSL study and its reproducible commands are in the [handshake study](../results/week2/handshake-loopback-full-20261101/README.md).
+> It is not an Envoy measurement and the probe does not support client
+> certificates. The original harness described below measures the full client
+> process duration; do not mix the two timing methods or their raw data.
+
 > **Current local Week 2 result:** TLS 1.3 new/resumed controls passed for both groups; a matched 100-per-mode OpenSSL loopback study is available. It measures process-inclusive duration, not isolated handshake latency. See the [current audit](project_audit_week2.md).
 
 > **Merge resolution:** `benchmark_tls.py` measures one mode per invocation. Runs are sequential, so ordering and time drift can bias comparisons; repeat experiments with reversed run order. The alternate-mode runner from `main` was not adopted because it lacked certificate and hostname verification. All measured failures are written to CSV, cause a nonzero benchmark exit, and prevent the analyzer from reporting a comparison. Existing `results/tls-benchmark-full/20261028-104538` data came from that older `main` runner and does not prove certificate identity; it is not compatible with this harness's raw CSV or a validated comparison. The verifier records OpenSSL-observed session state; ambiguous status remains unknown.

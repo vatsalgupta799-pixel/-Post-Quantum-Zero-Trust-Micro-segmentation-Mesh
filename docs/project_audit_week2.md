@@ -1,3 +1,19 @@
+# Week 2 Envoy benchmark update — 1 November 2026
+
+Two 100-per-group handshake studies against the team Envoy endpoint have now
+been completed over Tailscale. Both verified TLS 1.3, certificate/hostname,
+the exact group and a new session per successful sample; all 400 measured
+connections succeeded. The second run reversed the balanced block order. A
+separate certificate-validated HTTP check returned the documented Envoy test
+response. Tailscale reported a relay before and after the studies, so network
+and scheduling effects remain in the timings. The running binary version and
+complete active configuration were not independently captured. See the
+[review handover](week2_review_handover.md) and the individual run reports for
+results, raw data, limitations and unfinished extensions. The entries below
+are earlier historical updates, superseded where inconsistent.
+
+---
+
 # Local Week 2 session and comparison update — 28 October 2026
 
 **Readiness: local process-duration comparison available; isolated handshake latency and integrated mesh comparison remain incomplete.** This update supersedes inconsistent historical sections below.

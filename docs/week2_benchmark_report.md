@@ -1,3 +1,108 @@
+# Envoy repeat and review handover — 1 November 2026
+
+The classical-first repeat recorded 100/100 successful new handshakes per
+mode. p50/p95/p99 were 192.6289/394.6559/618.2272 ms classical and
+272.8049/425.5683/590.8987 ms hybrid. The first run began with hybrid; results
+are kept separate. The p95 direction changed between runs, and the relay and
+network/scheduling effects prevent a pure cryptographic-overhead conclusion.
+See the [review handover](week2_review_handover.md) and
+[repeat data and chart](../results/week2/envoy-tailscale-reverse-20261101/README.md).
+
+---
+
+# Envoy handshake timing update — 1 November 2026
+
+The team's Envoy endpoint was reached over Tailscale and negotiated TLS 1.3
+with the expected X25519 and X25519MLKEM768 groups, validating the explicitly
+trusted localhost test certificate. An instrumented client recorded 100 new,
+successful handshakes per group. p50/p95/p99 were 195.1531/373.7393/1139.7523
+ms classical and 239.5754/327.7337/555.8999 ms hybrid. Tailscale reported a
+relay before and after the test, and network and scheduling variability are
+included. This one exploratory run does not isolate cryptographic overhead or
+establish reliable tail-latency differences. See [full results, method,
+limitations, raw data and charts](../results/week2/envoy-tailscale-20261101/README.md).
+
+---
+
+# Local handshake timing update — 1 November 2026
+
+**Envoy preflight:** With the newly supplied public test certificate, both
+X25519 and X25519MLKEM768 checks against the documented `192.168.162.128:8444`
+timed out before a TLS connection was verified. [Attempt records](../evidence/envoy-attempt-20261101/README.md)
+are preserved. No Envoy performance run was performed. Confirm the current
+address, listening interface and a network path from Windows before retrying.
+
+An experimental instrumented OpenSSL client measured the interval from the
+first `SSL_connect` call until successful TLS handshake completion, after TCP
+connection. The local OpenSSL 4.1.0 loopback study recorded 1,000 verified new
+sessions per group with no failures. X25519 p50/p95/p99 were 2.9586/6.6341/
+8.0773 ms; X25519MLKEM768 values were 5.3504/7.9067/9.0761 ms. This is one
+local run and **not an Envoy benchmark**. See [method, controls, raw data,
+limits and charts](../results/week2/handshake-loopback-full-20261101/README.md).
+It does not supersede the earlier process-duration results, which measured a
+different interval. The team endpoint and trusted public certificate are
+still needed to run the instrument against Envoy; client-certificate mTLS is
+not supported by this experimental probe.
+
+---
+
+# Current environment check — 31 October 2026
+
+**Later recheck:** Both locally hosted OpenSSL groups subsequently passed
+certificate- and hostname-validated TLS 1.3 verification when local network
+access was permitted. See [the recheck evidence](../evidence/week2-recheck-20261031/README.md).
+This supersedes the connectivity failure below for the local OpenSSL test only;
+it does not establish availability of Envoy or an isolated handshake timing.
+The earlier 10-per-mode beginner smoke data has also been analyzed separately:
+[report and charts](../results/week2/beginner-smoke-comparison-20261031/comparison_report.md).
+All 20 measured samples were successful, but only 10 per mode and the
+process-inclusive timer make the comparison exploratory, not a handshake
+performance conclusion. No historical data was overwritten.
+
+**Status: PARTIALLY COMPLETE — MEASUREMENTS OR VERIFICATION BLOCKED.** The
+existing harness and the 28 October local results below were preserved. No new
+TLS comparison was collected in this session. The historical results are
+process-duration measurements, not isolated handshake latencies.
+
+The current Windows 11 environment has Python 3.13.12, Python SSL OpenSSL
+3.0.18, cryptography 50.0.2, pytest 9.1.1 and an OpenSSL 4.1.0 executable at
+`C:\Program Files\OpenSSL-Win64\bin\openssl.exe`. Its advertised TLS groups
+include X25519 and X25519MLKEM768; advertising support alone is not evidence of
+negotiation. Envoy and Docker were not found on PATH, no team endpoint was
+provided, and no project `.venv` is present. Pytest 9.1.1 is outside the
+declared pytest version range, although the local suite passed. This directory
+is not a Git working tree, so Git status and commit identity could not be
+established.
+
+An isolated OpenSSL test server started on `127.0.0.1:19591` with a temporary
+localhost certificate. Both verifier attempts failed before reporting a TLS
+version or group. A separate diagnostic on port 19592 showed the server
+process running but OpenSSL's TCP `BIO_connect` failed; the underlying cause
+was not established. The verifier outcomes are preserved in
+`.tmp/person4-live-20261031/`; the temporary private key was removed. These
+attempts establish neither a TLS handshake nor a meaningful group or
+certificate negative test. The historical positive evidence below remains
+separate from this session's failure.
+
+Baseline command: `python -m pytest -q -p no:cacheprovider --basetemp
+.tmp/pytest-20261031-person4-a --tb=short`: **140 passed in 2.28 s**. An initial
+run with the default temporary directory had 127 passes and 13 setup errors
+because pytest could not create its temporary directory. The environment check
+passed Python, cryptography, X25519 and ML-KEM checks, and failed its virtual
+environment check; `python -m pip check` found no broken installed
+requirements.
+
+The next measurement requires a working authorized loopback or team endpoint,
+trusted certificate, and a client that reports the actual group and session
+state. Re-run positive and negative controls, then use an instrumented client
+with a validated handshake-completion timing boundary before drawing a
+handshake-performance conclusion. Coordinate Envoy build and group telemetry,
+OPA settings, endpoint and certificates, and any capture with the responsible
+team members. Do not combine this failed run with the preserved 28 October
+measurements.
+
+---
+
 # Local TLS process-duration comparison — 28 October 2026
 
 A local OpenSSL 4.1.0 server and client negotiated TLS 1.3 with a trusted localhost certificate and the exact X25519 or X25519MLKEM768 group. A separate ticket-save/reuse control demonstrated OpenSSL `New` and `Reused` statuses for both groups. The benchmark retained only sanitized status lines and recorded 100 new, verified measured connections per mode, 0 failures; warm-ups and preflights are retained separately.

@@ -1,0 +1,44 @@
+{
+  "statistics": {
+    "classical": {
+      "count": 100,
+      "mean_ms": 222.66440599999999,
+      "stddev_ms": 108.85069911523173,
+      "min_ms": 116.8403,
+      "max_ms": 846.3289,
+      "p50_ms": 192.62885,
+      "p95_ms": 394.6558699999998,
+      "p99_ms": 618.2271580000012
+    },
+    "hybrid": {
+      "count": 100,
+      "mean_ms": 286.382884,
+      "stddev_ms": 89.66073348996498,
+      "min_ms": 130.6195,
+      "max_ms": 594.0028,
+      "p50_ms": 272.8049,
+      "p95_ms": 425.5683099999999,
+      "p99_ms": 590.898655
+    }
+  },
+  "comparison": {
+    "p50_classical_ms": 192.62885,
+    "p50_hybrid_ms": 272.8049,
+    "p50_abs_diff_ms": 80.17604999999998,
+    "p50_rel_overhead_pct": 41.622036366826656,
+    "p95_classical_ms": 394.6558699999998,
+    "p95_hybrid_ms": 425.5683099999999,
+    "p95_abs_diff_ms": 30.91244000000006,
+    "p95_rel_overhead_pct": 7.832758195133414,
+    "p99_classical_ms": 618.2271580000012,
+    "p99_hybrid_ms": 590.898655,
+    "p99_abs_diff_ms": -27.328503000001206,
+    "p99_rel_overhead_pct": -4.420463036339331,
+    "mean_classical_ms": 222.66440599999999,
+    "mean_hybrid_ms": 286.382884,
+    "mean_abs_diff_ms": 63.718478000000005,
+    "mean_rel_overhead_pct": 28.61637346743242,
+    "classical_success_count": 100,
+    "hybrid_success_count": 100
+  }
+}

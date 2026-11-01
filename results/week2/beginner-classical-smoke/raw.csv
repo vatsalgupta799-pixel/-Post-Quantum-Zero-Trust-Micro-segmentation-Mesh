@@ -1,0 +1,11 @@
+run_id,timestamp_utc,mode,attempt,success,latency_ms,tls_version,negotiated_group,certificate_verified,session_reused,error_type
+9bc9beb3c469,2026-10-31T07:14:15.115578+00:00,classical,1,True,1085.734300,TLSv1.3,X25519,True,False,
+9bc9beb3c469,2026-10-31T07:14:16.201391+00:00,classical,2,True,1081.227100,TLSv1.3,X25519,True,False,
+9bc9beb3c469,2026-10-31T07:14:17.282692+00:00,classical,3,True,1082.872200,TLSv1.3,X25519,True,False,
+9bc9beb3c469,2026-10-31T07:14:18.365637+00:00,classical,4,True,1086.509200,TLSv1.3,X25519,True,False,
+9bc9beb3c469,2026-10-31T07:14:19.452216+00:00,classical,5,True,1094.342400,TLSv1.3,X25519,True,False,
+9bc9beb3c469,2026-10-31T07:14:20.546630+00:00,classical,6,True,1089.548400,TLSv1.3,X25519,True,False,
+9bc9beb3c469,2026-10-31T07:14:21.636250+00:00,classical,7,True,1100.241800,TLSv1.3,X25519,True,False,
+9bc9beb3c469,2026-10-31T07:14:22.736561+00:00,classical,8,True,1080.655300,TLSv1.3,X25519,True,False,
+9bc9beb3c469,2026-10-31T07:14:23.817288+00:00,classical,9,True,1082.102600,TLSv1.3,X25519,True,False,
+9bc9beb3c469,2026-10-31T07:14:24.899463+00:00,classical,10,True,1084.002900,TLSv1.3,X25519,True,False,

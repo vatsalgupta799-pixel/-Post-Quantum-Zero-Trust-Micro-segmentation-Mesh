@@ -1,0 +1,16 @@
+Certificate-validated application response, 1 November 2026, after both
+handshake studies. curl connected to 100.71.117.30:8444 using localhost as
+the certificate identity and the repository's public test certificate as its
+trust anchor. This separate HTTP request was not part of the timing samples.
+
+HTTP/1.1 200 OK
+content-length: 22
+content-type: text/plain
+date: Sun, 01 Nov 2026 13:03:55 GMT
+server: envoy
+
+PQC TLS test endpoint
+
+The response identifies the server as Envoy and matches the documented test
+response; it does not establish the binary version or the complete active
+configuration.

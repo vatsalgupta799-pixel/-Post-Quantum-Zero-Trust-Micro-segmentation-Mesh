@@ -1,8 +1,13 @@
-> **Current local Week 2 result:** TLS 1.3 new/resumed controls passed for both groups; a matched 100-per-mode OpenSSL loopback study is available. It measures process-inclusive duration, not isolated handshake latency. See the [current audit](docs/project_audit_week2.md).
+> **Week 2 Envoy benchmark:** Two 100-per-group TLS 1.3 handshake runs
+> verified X25519 and X25519MLKEM768 against the team endpoint. The results
+> include network effects from a Tailscale relay; see the [review handover](docs/week2_review_handover.md)
+> for results, evidence, reproduction and limitations.
 
 > **Week 1 reproduction (28 October 2026):** The declared requirements were installed into a new local `.venv` on Windows, and the tests and four demos were run using that environment. See the [reproduction checklist](docs/reproducibility_checklist.md) for exact commands and limitations. The in-memory hybrid exchange is unauthenticated educational code, not production TLS or mTLS; its in-process benchmark is not a TLS or network measurement.
 
-> **Current Week 2 status:** See [the audit update](docs/project_audit_week2.md). The local matched comparison and observed session controls are available; the measured process duration is not handshake latency.
+> **Earlier local results:** See [the audit update](docs/project_audit_week2.md).
+> Those process-duration observations measure a different interval from the
+> later instrumented Envoy handshake study.
 
 # Post-Quantum Zero-Trust Microsegmentation Mesh
 
