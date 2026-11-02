@@ -1,6 +1,6 @@
 import unittest
 
-from key_rotation import KeyRotationManager
+from Key_rotation import KeyRotationManager
 
 
 class TestKeyRotation(unittest.TestCase):
