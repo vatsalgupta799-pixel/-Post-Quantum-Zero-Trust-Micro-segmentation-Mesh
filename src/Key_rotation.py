@@ -37,6 +37,9 @@ class KeyRotationManager:
         self._keys = {}
         self.rotation_history = []
 
+        self._stop_event = None
+        self._rotation_thread = None
+
         self.current_key = self._generate_key(1)
         self._keys[self.current_key.key_id] = self.current_key
 
@@ -93,7 +96,7 @@ class KeyRotationManager:
             logger.info(
                 "Key rotation successful: %s -> %s",
                 old_key.key_id,
-                new_key_id
+                new_key.key_id
             )
 
             return new_key_id
@@ -124,7 +127,7 @@ class KeyRotationManager:
 
             key_record = self.current_key
 
-            nonce = AESGCM.generate_key(bit_length=128)[:12]
+            nonce = __import__("os").urandom(12)
 
             aad = key_record.key_id.to_bytes(8, "big")
 
@@ -159,3 +162,38 @@ class KeyRotationManager:
 
         with self.lock:
             return list(self.rotation_history)
+
+    # Automatic background key rotation
+
+    def start_auto_rotation(self):
+
+        with self.lock:
+
+            if (self._rotation_thread is not None
+                    and self._rotation_thread.is_alive()):
+                logger.warning("Auto rotation is already running")
+                return
+
+            self._stop_event = threading.Event()
+
+            def rotation_loop():
+
+                while not self._stop_event.wait(1):
+                    self.check_rotation()
+
+            self._rotation_thread = threading.Thread(
+                target=rotation_loop,
+                daemon=True
+            )
+
+            self._rotation_thread.start()
+
+            logger.info("Automatic key rotation started")
+
+    def stop_auto_rotation(self):
+
+        with self.lock:
+
+            if self._stop_event is not None:
+                self._stop_event.set()
+                logger.info("Automatic key rotation stopped")
