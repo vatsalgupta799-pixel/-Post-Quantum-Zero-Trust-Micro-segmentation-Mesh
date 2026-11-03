@@ -12,6 +12,9 @@ class TestKeyRotation(unittest.TestCase):
             grace_period=0
         )
 
+    def tearDown(self):
+        self.manager.stop_auto_rotation()
+
     def test_initial_key_generation(self):
         self.assertEqual(
             self.manager.get_active_key_id(), 1
@@ -60,6 +63,47 @@ class TestKeyRotation(unittest.TestCase):
         self.assertEqual(
             manager.get_active_key_id(), 2
         )
+
+    def test_automatic_background_rotation(self):
+        manager = KeyRotationManager(
+            rotation_interval=1,
+            grace_period=0
+        )
+
+        try:
+            manager.start_auto_rotation()
+
+            time.sleep(1.5)
+
+            self.assertEqual(
+                manager.get_active_key_id(), 2
+            )
+
+        finally:
+            manager.stop_auto_rotation()
+
+            if manager._rotation_thread is not None:
+                manager._rotation_thread.join(timeout=2)
+
+    def test_scheduler_starts_only_once(self):
+        manager = KeyRotationManager()
+
+        try:
+            manager.start_auto_rotation()
+
+            first_thread = manager._rotation_thread
+
+            manager.start_auto_rotation()
+
+            self.assertIs(
+                manager._rotation_thread, first_thread
+            )
+
+        finally:
+            manager.stop_auto_rotation()
+
+            if manager._rotation_thread is not None:
+                manager._rotation_thread.join(timeout=2)
 
 
 if __name__ == "__main__":
