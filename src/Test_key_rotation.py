@@ -15,6 +15,9 @@ class TestKeyRotation(unittest.TestCase):
     def tearDown(self):
         self.manager.stop_auto_rotation()
 
+        if self.manager._rotation_thread is not None:
+            self.manager._rotation_thread.join(timeout=2)
+
     def test_initial_key_generation(self):
         self.assertEqual(
             self.manager.get_active_key_id(), 1
@@ -56,13 +59,17 @@ class TestKeyRotation(unittest.TestCase):
             grace_period=0
         )
 
-        time.sleep(1.2)
+        try:
+            time.sleep(1.2)
 
-        self.assertTrue(manager.check_rotation())
+            self.assertTrue(manager.check_rotation())
 
-        self.assertEqual(
-            manager.get_active_key_id(), 2
-        )
+            self.assertEqual(
+                manager.get_active_key_id(), 2
+            )
+
+        finally:
+            manager.stop_auto_rotation()
 
     def test_automatic_background_rotation(self):
         manager = KeyRotationManager(
@@ -104,6 +111,40 @@ class TestKeyRotation(unittest.TestCase):
 
             if manager._rotation_thread is not None:
                 manager._rotation_thread.join(timeout=2)
+
+    # Day 3: Security validation tests
+
+    def test_generated_key_is_256_bits(self):
+        key = self.manager.current_key.key
+
+        self.assertEqual(len(key), 32)
+
+    def test_invalid_key_id_rejected(self):
+        with self.assertRaises(ValueError):
+            self.manager._generate_key(-1)
+
+        with self.assertRaises(ValueError):
+            self.manager._generate_key(0)
+
+    def test_invalid_nonce_length_rejected(self):
+        with self.assertRaises(ValueError):
+            self.manager.decrypt(
+                1,
+                b"short",
+                b"invalid"
+            )
+
+    def test_invalid_key_id_during_decryption(self):
+        with self.assertRaises(ValueError):
+            self.manager.decrypt(
+                -1,
+                b"0" * 12,
+                b"invalid"
+            )
+
+    def test_non_bytes_message_rejected(self):
+        with self.assertRaises(TypeError):
+            self.manager.encrypt("Invalid message")
 
 
 if __name__ == "__main__":
