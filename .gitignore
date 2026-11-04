@@ -50,3 +50,11 @@ Desktop.ini
 
 # Local certificates and private keys
 certs/
+
+# Local Vault state and recovery material (never commit)
+/vault/data/
+/vault/recovery/
+/vault/bin/
+/vault/init-output*
+/vault/unseal-keys*
+/vault/root-token*

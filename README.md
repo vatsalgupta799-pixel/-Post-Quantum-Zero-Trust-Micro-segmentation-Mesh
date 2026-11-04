@@ -1,3 +1,18 @@
+> **Week 3 Vault Part 1:** Vault 2.2.1 has started locally with persistent
+> Raft storage and a loopback-only HTTP listener. Initialization, unsealing,
+> and token authentication are verified; initialized state survived a restart,
+> followed by unsealing and an operator-reported successful token check. See the
+> [deployment guide](docs/vault_deployment.md) for the live status, commands,
+> architecture and security limitations.
+
+From the project root, if Vault is not already running, start it in a dedicated
+PowerShell window with `./vault/bin/vault.exe server -config=vault/config/vault.hcl`.
+In another PowerShell window, set `$env:VAULT_ADDR = 'http://127.0.0.1:8200'`,
+run `./vault/bin/vault.exe status`, and unseal with two saved shares using
+`./vault/bin/vault.exe operator unseal` twice. Run
+`python scripts/verify_vault.py --token` to enter a token at a hidden prompt.
+Never initialize the existing storage again or put recovery values in chat.
+
 > **Week 2 Envoy benchmark:** Two 100-per-group TLS 1.3 handshake runs
 > verified X25519 and X25519MLKEM768 against the team endpoint. The results
 > include network effects from a Tailscale relay; see the [review handover](docs/week2_review_handover.md)
