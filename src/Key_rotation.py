@@ -1,6 +1,7 @@
 import time
 import logging
 import threading
+import os
 
 from dataclasses import dataclass, field
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -47,9 +48,17 @@ class KeyRotationManager:
 
     def _generate_key(self, key_id):
 
+        if not isinstance(key_id, int) or isinstance(key_id, bool) or key_id <= 0:
+            raise ValueError("Key ID must be a positive integer")
+
+        key = AESGCM.generate_key(bit_length=256)
+
+        if len(key) != 32:
+            raise ValueError("Generated key must be 256 bits")
+
         return KeyRecord(
             key_id=key_id,
-            key=AESGCM.generate_key(bit_length=256)
+            key=key
         )
 
     def _retire_expired_keys(self):
@@ -87,7 +96,7 @@ class KeyRotationManager:
 
             self.rotation_history.append({
                 "old_key_id": old_key.key_id,
-                "new_key_id": new_key_id,
+                "new_key_id": new_key.key_id,
                 "rotated_at": now
             })
 
@@ -121,13 +130,16 @@ class KeyRotationManager:
 
     def encrypt(self, message):
 
+        if not isinstance(message, bytes):
+            raise TypeError("Message must be bytes")
+
         with self.lock:
 
             self.check_rotation()
 
             key_record = self.current_key
 
-            nonce = __import__("os").urandom(12)
+            nonce = os.urandom(12)
 
             aad = key_record.key_id.to_bytes(8, "big")
 
@@ -140,6 +152,15 @@ class KeyRotationManager:
             return key_record.key_id, nonce, ciphertext
 
     def decrypt(self, key_id, nonce, ciphertext):
+
+        if not isinstance(key_id, int) or isinstance(key_id, bool) or key_id <= 0:
+            raise ValueError("Invalid key ID")
+
+        if not isinstance(nonce, bytes) or len(nonce) != 12:
+            raise ValueError("Nonce must be exactly 12 bytes")
+
+        if not isinstance(ciphertext, bytes):
+            raise TypeError("Ciphertext must be bytes")
 
         with self.lock:
 
