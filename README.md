@@ -13,6 +13,34 @@ run `./vault/bin/vault.exe status`, and unseal with two saved shares using
 `python scripts/verify_vault.py --token` to enter a token at a hidden prompt.
 Never initialize the existing storage again or put recovery values in chat.
 
+**Vault Part 2:** The local Vault instance has KV v2, a demonstration PKI,
+and separate AppRoles for Service A, Service B, and the certificate manager.
+See [secret storage](docs/vault_secret_storage.md), [PKI](docs/vault_pki_configuration.md),
+[access tests](docs/vault_access_policies.md), and the [Member 4 handover](docs/vault_member4_handover.md).
+The initial setup and real-server tests used `python scripts/vault_part2_setup.py kv`,
+then `pki`, then `auth`, with the administrator token entered privately. These
+phases refuse to overwrite existing mounts or policies and are not restart commands.
+To inspect and use configured paths, use the separate application identities and
+the API guidance in the handover; do not put tokens or Secret IDs in shell history.
+For a read-only administrator inventory, run `python scripts/vault_part2_inventory.py`
+and enter an administrator token at its hidden prompt. It records mount types,
+authentication methods, and the relevant policy names in ignored `.tmp/`.
+The following Vault CLI examples require an already authenticated token with
+appropriate permissions; they have not been separately tested here. Use a
+private session and never put the token itself in a command:
+
+```powershell
+./vault/bin/vault.exe secrets list
+./vault/bin/vault.exe policy list
+./vault/bin/vault.exe kv get -mount=secret application/service-a/database
+# An administrator may create a new synthetic example at an unused path:
+./vault/bin/vault.exe kv put -mount=secret application/service-a/new-demo username=demo-user
+```
+
+The last command writes data; select an unused path and use synthetic values only.
+The service AppRoles deliberately cannot write. The access guide describes the
+tested AppRole login and allow/deny tests; the handover describes CSR signing.
+
 > **Week 2 Envoy benchmark:** Two 100-per-group TLS 1.3 handshake runs
 > verified X25519 and X25519MLKEM768 against the team endpoint. The results
 > include network effects from a Tailscale relay; see the [review handover](docs/week2_review_handover.md)

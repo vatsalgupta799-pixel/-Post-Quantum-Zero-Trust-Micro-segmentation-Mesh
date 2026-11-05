@@ -1,0 +1,11 @@
+# Vault KV version 2: local demonstration
+
+Vault's key/value (KV) engine stores named values behind authenticated API access and policies. KV v1 keeps only the current value; KV v2 retains a configurable history, supports soft deletion and undeletion, and has separate data and metadata API paths. A path is a logical name, not a filesystem directory; do not put sensitive information in path names.
+
+On 5 November 2026 the real local server was configured with KV v2 at `secret/` and a maximum of five retained versions. Four synthetic entries were written and read under `application/service-a/{database,api-config}` and `application/service-b/{database,api-config}`. The database entry for Service A was updated; versions 1 and 2 were read, version 2 was soft-deleted and became inaccessible, and then it was undeleted and read successfully. None of the values are production credentials. This result came from the real API, not a mock.
+
+The logical CLI path `secret/application/service-a/database` maps to the API data path `secret/data/application/service-a/database`. The metadata path starts with `secret/metadata/`. Avoid granting metadata `list` unless necessary: listings reveal names and are not filtered per child policy. Version recovery is possible only while data has not been destroyed or removed by retention.
+
+From the project root, point Vault CLI to the local instance with `$env:VAULT_ADDR='http://127.0.0.1:8200'`. The setup script was run as `python scripts/vault_part2_setup.py kv`, with its administrator token entered at a hidden prompt. **Do not rerun it against the existing mount:** it deliberately stops if `secret/` exists. For normal use, use an appropriately authorized identity rather than the root token. Vault's CLI provides `vault kv get -mount=secret application/service-a/database`; a suitably authorized operator can use `vault kv put`, `vault kv get -version=1`, `vault kv delete`, and `vault kv undelete`. These CLI examples have not been independently exercised in this deployment; the actual test used the corresponding API operations. Never put real credentials on a command line or in shell history.
+
+References: [KV v2](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2) and [KV v2 API](https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2).
