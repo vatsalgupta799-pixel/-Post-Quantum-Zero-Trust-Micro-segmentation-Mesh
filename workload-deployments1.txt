@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-nginx-config
+  namespace: zt-integration
+data:
+  default.conf: |
+    server {
+        listen 8443 ssl;
+        server_name backend.zt-integration.svc.cluster.local;
+
+        ssl_certificate /etc/nginx/tls/tls.crt;
+        ssl_certificate_key /etc/nginx/tls/tls.key;
+
+        ssl_client_certificate /etc/nginx/tls/ca.crt;
+        ssl_verify_client on;
+
+        location / {
+            default_type text/plain;
+            return 200 "mTLS connection successful\n";
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: zt-integration
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: nginx:1.27
+          ports:
+            - containerPort: 8443
+              name: https
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            - name: backend-tls
+              mountPath: /etc/nginx/tls
+              readOnly: true
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: backend-nginx-config
+        - name: backend-tls
+          secret:
+            secretName: backend-tls
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: zt-integration
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: curlimages/curl:8.10.1
+          command: ["sh", "-c", "sleep infinity"]
+          volumeMounts:
+            - name: frontend-tls
+              mountPath: /etc/mtls
+              readOnly: true
+      volumes:
+        - name: frontend-tls
+          secret:
+            secretName: frontend-tls
