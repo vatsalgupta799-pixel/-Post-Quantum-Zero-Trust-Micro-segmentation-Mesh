@@ -22,7 +22,12 @@ class KeyRecord:
 
 class KeyRotationManager:
 
-    def __init__(self, rotation_interval=3600, grace_period=300):
+    def __init__(
+        self,
+        rotation_interval=3600,
+        grace_period=300,
+        max_history=1000
+    ):
 
         if rotation_interval <= 0:
             raise ValueError("Rotation interval must be positive")
@@ -30,8 +35,16 @@ class KeyRotationManager:
         if grace_period < 0:
             raise ValueError("Grace period cannot be negative")
 
+        if (
+            not isinstance(max_history, int)
+            or isinstance(max_history, bool)
+            or max_history <= 0
+        ):
+            raise ValueError("Maximum history must be a positive integer")
+
         self.rotation_interval = rotation_interval
         self.grace_period = grace_period
+        self.max_history = max_history
 
         self.lock = threading.RLock()
 
@@ -48,8 +61,13 @@ class KeyRotationManager:
 
     def _generate_key(self, key_id):
 
-        if not isinstance(key_id, int) or isinstance(key_id, bool) or key_id <= 0:
-            raise ValueError("Key ID must be a positive integer")
+        if (
+            not isinstance(key_id, int)
+            or isinstance(key_id, bool)
+            or key_id <= 0
+            or key_id >= 2**64
+        ):
+            raise ValueError("Key ID must be a valid positive integer")
 
         key = AESGCM.generate_key(bit_length=256)
 
@@ -99,6 +117,12 @@ class KeyRotationManager:
                 "new_key_id": new_key.key_id,
                 "rotated_at": now
             })
+
+            # Keep history within the configured limit
+            if len(self.rotation_history) > self.max_history:
+                del self.rotation_history[
+                    :-self.max_history
+                ]
 
             self._retire_expired_keys()
 
@@ -153,7 +177,12 @@ class KeyRotationManager:
 
     def decrypt(self, key_id, nonce, ciphertext):
 
-        if not isinstance(key_id, int) or isinstance(key_id, bool) or key_id <= 0:
+        if (
+            not isinstance(key_id, int)
+            or isinstance(key_id, bool)
+            or key_id <= 0
+            or key_id >= 2**64
+        ):
             raise ValueError("Invalid key ID")
 
         if not isinstance(nonce, bytes) or len(nonce) != 12:
@@ -169,7 +198,9 @@ class KeyRotationManager:
             key_record = self._keys.get(key_id)
 
             if key_record is None:
-                raise ValueError("Encryption key is unavailable or retired")
+                raise ValueError(
+                    "Encryption key is unavailable or retired"
+                )
 
             aad = key_id.to_bytes(8, "big")
 
@@ -182,7 +213,10 @@ class KeyRotationManager:
     def get_rotation_history(self):
 
         with self.lock:
-            return list(self.rotation_history)
+            return [
+                record.copy()
+                for record in self.rotation_history
+            ]
 
     # Automatic background key rotation
 
@@ -190,17 +224,27 @@ class KeyRotationManager:
 
         with self.lock:
 
-            if (self._rotation_thread is not None
-                    and self._rotation_thread.is_alive()):
+            if (
+                self._rotation_thread is not None
+                and self._rotation_thread.is_alive()
+            ):
                 logger.warning("Auto rotation is already running")
                 return
 
-            self._stop_event = threading.Event()
+            stop_event = threading.Event()
+            self._stop_event = stop_event
 
             def rotation_loop():
 
-                while not self._stop_event.wait(1):
-                    self.check_rotation()
+                while not stop_event.wait(1):
+
+                    try:
+                        self.check_rotation()
+
+                    except Exception:
+                        logger.exception(
+                            "Automatic key rotation check failed"
+                        )
 
             self._rotation_thread = threading.Thread(
                 target=rotation_loop,
@@ -215,6 +259,23 @@ class KeyRotationManager:
 
         with self.lock:
 
-            if self._stop_event is not None:
-                self._stop_event.set()
-                logger.info("Automatic key rotation stopped")
+            stop_event = self._stop_event
+            rotation_thread = self._rotation_thread
+
+            if stop_event is None or rotation_thread is None:
+                logger.info("Automatic rotation is not running")
+                return
+
+            stop_event.set()
+
+        # Wait outside the lock so the worker can finish safely
+        if rotation_thread is not threading.current_thread():
+            rotation_thread.join()
+
+        with self.lock:
+
+            if self._rotation_thread is rotation_thread:
+                self._rotation_thread = None
+                self._stop_event = None
+
+        logger.info("Automatic key rotation stopped")
