@@ -18,10 +18,18 @@ class TestKeyRotation(unittest.TestCase):
         if self.manager._rotation_thread is not None:
             self.manager._rotation_thread.join(timeout=2)
 
+    # Initial key generation
+
     def test_initial_key_generation(self):
         self.assertEqual(
             self.manager.get_active_key_id(), 1
         )
+
+    def test_generated_key_is_256_bits(self):
+        key = self.manager.current_key.key
+        self.assertEqual(len(key), 32)
+
+    # Manual key rotation
 
     def test_manual_key_rotation(self):
         self.manager.rotate_key()
@@ -29,6 +37,8 @@ class TestKeyRotation(unittest.TestCase):
         self.assertEqual(
             self.manager.get_active_key_id(), 2
         )
+
+    # Encryption and decryption
 
     def test_encryption_and_decryption(self):
         message = b"Zero Trust Security Test"
@@ -41,6 +51,8 @@ class TestKeyRotation(unittest.TestCase):
 
         self.assertEqual(decrypted, message)
 
+    # Old key retirement
+
     def test_old_key_retirement(self):
         old_key_id = self.manager.get_active_key_id()
 
@@ -52,6 +64,59 @@ class TestKeyRotation(unittest.TestCase):
                 b"0" * 12,
                 b"invalid"
             )
+
+    # Day 5: Grace period validation
+
+    def test_old_key_works_during_grace_period(self):
+        manager = KeyRotationManager(
+            rotation_interval=3600,
+            grace_period=3
+        )
+
+        try:
+            message = b"Grace Period Security Test"
+
+            old_id, nonce, ciphertext = manager.encrypt(message)
+
+            manager.rotate_key()
+
+            self.assertEqual(
+                manager.get_active_key_id(), 2
+            )
+
+            decrypted = manager.decrypt(
+                old_id, nonce, ciphertext
+            )
+
+            self.assertEqual(decrypted, message)
+
+        finally:
+            manager.stop_auto_rotation()
+
+    def test_old_key_rejected_after_grace_period(self):
+        manager = KeyRotationManager(
+            rotation_interval=3600,
+            grace_period=1
+        )
+
+        try:
+            message = b"Expired Key Security Test"
+
+            old_id, nonce, ciphertext = manager.encrypt(message)
+
+            manager.rotate_key()
+
+            time.sleep(1.2)
+
+            with self.assertRaises(ValueError):
+                manager.decrypt(
+                    old_id, nonce, ciphertext
+                )
+
+        finally:
+            manager.stop_auto_rotation()
+
+    # Time-based rotation
 
     def test_time_based_rotation(self):
         manager = KeyRotationManager(
@@ -70,6 +135,8 @@ class TestKeyRotation(unittest.TestCase):
 
         finally:
             manager.stop_auto_rotation()
+
+    # Automatic background rotation
 
     def test_automatic_background_rotation(self):
         manager = KeyRotationManager(
@@ -112,12 +179,7 @@ class TestKeyRotation(unittest.TestCase):
             if manager._rotation_thread is not None:
                 manager._rotation_thread.join(timeout=2)
 
-    # Day 3: Security validation tests
-
-    def test_generated_key_is_256_bits(self):
-        key = self.manager.current_key.key
-
-        self.assertEqual(len(key), 32)
+    # Security validation tests
 
     def test_invalid_key_id_rejected(self):
         with self.assertRaises(ValueError):
