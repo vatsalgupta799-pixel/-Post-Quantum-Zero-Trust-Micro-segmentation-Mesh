@@ -65,7 +65,7 @@ class TestKeyRotation(unittest.TestCase):
                 b"invalid"
             )
 
-    # Day 5: Grace period validation
+    # Grace period validation
 
     def test_old_key_works_during_grace_period(self):
         manager = KeyRotationManager(
@@ -207,6 +207,23 @@ class TestKeyRotation(unittest.TestCase):
     def test_non_bytes_message_rejected(self):
         with self.assertRaises(TypeError):
             self.manager.encrypt("Invalid message")
+
+    # Day 6: Key history validation
+
+    def test_invalid_max_history_rejected(self):
+        with self.assertRaises(ValueError):
+            KeyRotationManager(max_history=0)
+
+        with self.assertRaises(ValueError):
+            KeyRotationManager(max_history=-1)
+
+    def test_max_history_accepts_valid_value(self):
+        manager = KeyRotationManager(max_history=5)
+
+        try:
+            self.assertEqual(manager.max_history, 5)
+        finally:
+            manager.stop_auto_rotation()
 
 
 if __name__ == "__main__":
