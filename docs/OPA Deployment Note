@@ -1,0 +1,41 @@
+OPA Task--
+
+Implementation Summary
+
+Implemented and tested key Zero-Trust security components in the Kubernetes zt-integration namespace.
+
+Completed work:
+
+Deployed OPA and Envoy alongside a demo application.
+
+Configured OPA authorization policies with JWT-based role validation.
+
+Tested authorized and unauthorized requests.
+
+Configured frontend and backend workloads with certificate-based mutual TLS (mTLS).
+
+Verified successful TLS authentication and rejection of requests without client certificates.
+
+Implemented Kubernetes NetworkPolicy to allow backend access only from authorized frontend workloads.
+
+Verified that unauthorized pods are blocked while authorized frontend-to-backend communication continues successfully.
+
+Test Results:
+
+Unauthorized request without a valid JWT: HTTP 403.
+
+Authorized guest GET request: HTTP 200.
+
+Restricted guest POST request: HTTP 403.
+
+Successful frontend-to-backend mTLS: HTTP 200.
+
+Missing client certificate: HTTP 400.
+
+Unauthorized pod network access: Connection timeout.
+
+Authorized frontend access after NetworkPolicy: HTTP 200.
+
+Note: The current workload mTLS implementation uses classical RSA certificates and X25519 key exchange. Post-quantum hybrid key exchange is maintained as a separate demonstration and is not yet integrated into this live workload mTLS connection.
+
+Environment: Windows 11, Minikube, Kubernetes, OPA, Envoy, OpenSSL and PowerShell.
