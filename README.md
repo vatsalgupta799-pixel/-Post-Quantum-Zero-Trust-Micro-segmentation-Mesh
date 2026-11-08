@@ -691,3 +691,39 @@ Automated tests cover:
 The module demonstrates automated encryption key lifecycle management, controlled key rotation, temporary backward decryption compatibility, and thread-safe operation.
 
 This is an educational implementation and requires further security review before production deployment.
+
+Week 3 — Member 1: Dynamic Key Rotation
+
+Contribution Summary
+
+As Member 1, I developed a Dynamic Key Rotation module for the Post-Quantum Zero-Trust Microsegmentation Mesh project.
+
+The main objective was to implement secure encryption key lifecycle management with automatic and manual rotation capabilities.
+
+Work Completed Over 7 Days
+
+* Day 1: Implemented AES-256-GCM encryption and decryption with secure key generation.
+* Day 2: Added key rotation history, thread synchronization, and automatic background rotation.
+* Day 3: Implemented and tested manual key rotation and previous-key decryption support.
+* Day 4: Verified automatic rotation, key retirement, and grace-period functionality.
+* Day 5: Added configurable key history limits and input validation.
+* Day 6: Improved automated testing and background thread cleanup.
+* Day 7: Completed documentation and final project verification.
+
+Technologies Used
+
+* Python
+* AES-256-GCM
+* Cryptography library
+* Threading and RLock
+* Unittest
+* GitHub
+
+Final Outcome
+
+Successfully developed a dynamic encryption key management module supporting manual rotation, automatic background rotation, grace-period handling, key retirement, rotation history, and thread-safe operations.
+
+This contribution strengthens the key management component of the wider Zero-Trust architecture.
+
+Role: Member 1 — Dynamic Key Rotation
+Project: Post-Quantum Zero-Trust Microsegmentation Mesh
