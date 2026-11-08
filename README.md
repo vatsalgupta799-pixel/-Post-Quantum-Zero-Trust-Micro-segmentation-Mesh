@@ -635,3 +635,59 @@ See [security limitations](docs/security_limitations.md) for the full boundary.
 - [cryptography ML-KEM documentation](https://cryptography.io/en/stable/hazmat/primitives/asymmetric/mlkem/)
 - [Open Quantum Safe liboqs-python](https://github.com/open-quantum-safe/liboqs-python)
 - [Open Quantum Safe liboqs](https://github.com/open-quantum-safe/liboqs)
+
+- ## Week 3 — Dynamic Key Rotation
+
+### Overview
+
+Week 3 implements a Dynamic Key Rotation module to manage encryption keys securely throughout their lifecycle.
+
+The implementation is available in:
+
+- `src/Key_rotation.py`
+- `src/Test_key_rotation.py`
+
+### Features Implemented
+
+1. **AES-256-GCM Encryption**
+   - Uses 256-bit encryption keys.
+   - Supports authenticated encryption and decryption.
+
+2. **Manual Key Rotation**
+   - Allows keys to be rotated manually.
+   - Generates a new encryption key and updates the active key ID.
+
+3. **Automatic Background Rotation**
+   - Supports automatic key rotation using a background thread.
+   - Provides start and stop controls.
+
+4. **Grace Period Management**
+   - Retains previous keys temporarily.
+   - Allows previously encrypted data to be decrypted during the grace period.
+   - Retires expired keys.
+
+5. **Rotation History**
+   - Maintains a record of key rotation events.
+   - Supports configurable maximum history size.
+
+6. **Thread Safety**
+   - Uses RLock for synchronized key-management operations.
+
+### Testing
+
+Automated tests cover:
+
+- Encryption and decryption.
+- Manual key rotation.
+- Automatic background rotation.
+- Grace-period decryption.
+- Expired key retirement.
+- Rotation history.
+- Maximum history validation.
+- Background thread cleanup.
+
+### Project Outcome
+
+The module demonstrates automated encryption key lifecycle management, controlled key rotation, temporary backward decryption compatibility, and thread-safe operation.
+
+This is an educational implementation and requires further security review before production deployment.
