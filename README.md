@@ -5,6 +5,16 @@
 > [deployment guide](docs/vault_deployment.md) for the live status, commands,
 > architecture and security limitations.
 
+> **Vault Part 3:** The live configuration audit and 49 real-server integration
+> checks passed on 8 November 2026, with documented local limitations. See the
+> [integration guide](docs/vault_integration_guide.md), [API reference](docs/vault_api_reference.md),
+> [architecture](docs/vault_architecture.md), and [test evidence](docs/vault_integration_tests.md).
+> Run `python scripts/vault_integration_audit.py` for a private read-only audit,
+> `python scripts/vault_integration_demo.py` for real-server integration checks,
+> and `python -m pytest -q tests/test_vault_integration.py` for offline checks.
+> The audit and demo prompt privately for an administrator token; the demo
+> creates one-use test credentials and issues and revokes a disposable certificate.
+
 From the project root, if Vault is not already running, start it in a dedicated
 PowerShell window with `./vault/bin/vault.exe server -config=vault/config/vault.hcl`.
 In another PowerShell window, set `$env:VAULT_ADDR = 'http://127.0.0.1:8200'`,
