@@ -1,0 +1,5 @@
+mode,iteration,expected_group,observed_group_evidence,elapsed_ms,return_code,success,error
+classical,1,X25519,Peer Temp Key: X25519,9.617733,0,True,
+hybrid,1,X25519MLKEM768,Negotiated TLS1.3 group: X25519MLKEM768,8.932981,0,True,
+hybrid,2,X25519MLKEM768,Negotiated TLS1.3 group: X25519MLKEM768,9.808080,0,True,
+classical,2,X25519,Peer Temp Key: X25519,9.531562,0,True,

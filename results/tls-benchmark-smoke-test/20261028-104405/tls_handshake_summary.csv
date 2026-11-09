@@ -1,0 +1,3 @@
+mode,expected_group,attempts,successes,failures,success_rate_percent,mean_ms,median_ms,p95_ms
+classical,X25519,2,2,0,100.0,9.5746475,9.5746475,9.617733
+hybrid,X25519MLKEM768,2,2,0,100.0,9.370530500000001,9.370530500000001,9.80808
