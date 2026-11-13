@@ -1,0 +1,10 @@
+﻿KUBERNETES CLASSICAL mTLS NEGATIVE TEST
+
+Test: Connection without client certificate
+Backend: backend.zt-integration.svc.cluster.local:8443
+
+HTTP Response: 400 Bad Request
+Server Message: No required SSL certificate was sent
+
+Result: SUCCESS
+Backend correctly rejected the connection because the client did not provide a certificate.

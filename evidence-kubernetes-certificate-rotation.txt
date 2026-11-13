@@ -1,0 +1,30 @@
+KUBERNETES CLASSICAL mTLS CERTIFICATE ROTATION
+
+Date: 13 November 2026
+
+Frontend:
+- New RSA 2048-bit private key generated.
+- New certificate signed by project CA.
+- Certificate and private key matched.
+- Kubernetes frontend-tls Secret updated.
+- Frontend deployment restarted successfully.
+
+Backend:
+- New RSA 2048-bit private key generated.
+- New certificate signed by project CA.
+- Certificate and private key matched.
+- Kubernetes backend-tls Secret updated.
+- Backend deployment restarted successfully.
+
+Validation:
+- Both certificates passed CA verification.
+- Backend certificate hostname verification successful.
+- TLS 1.3 handshake successful.
+- Client certificate authentication successful.
+- HTTP response: 200 OK.
+- Response body: mTLS connection successful.
+
+Result: SUCCESS
+
+Note: This validates classical RSA-based certificate rotation.
+It does not demonstrate post-quantum hybrid mTLS inside Kubernetes.
