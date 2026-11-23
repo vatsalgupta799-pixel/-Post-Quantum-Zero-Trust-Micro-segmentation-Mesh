@@ -1,0 +1,39 @@
+flowchart TB
+  subgraph K["Kubernetes demonstrations — current runtime UNVERIFIED"]
+    subgraph Z["zt-integration — manifests and historical tests"]
+      F["Frontend: curl 8.10.1\nINSPECTED; client certificate mount"]
+      S["backend Service:8443\nINSPECTED"]
+      B["Backend: nginx 1.27\nINSPECTED; requires client certificate"]
+      SEC["frontend-tls / backend-tls Secrets\nINSPECTED backups; live values UNKNOWN"]
+      NP["NetworkPolicies\nfrontend ingress allow; compromised-pod isolation"]
+      E["example-app Envoy:8000\nINSPECTED HTTP ext_authz; no TLS context"]
+      O["OPA:9191\nINSPECTED JWT authorization"]
+      A["Demo app:8080\nINSPECTED"]
+      F -->|"classical mTLS historically observed"| S
+      S --> B
+      SEC --> F
+      SEC --> B
+      NP -->|"selects backend / compromised pods"| B
+      E -->|"gRPC authorization check"| O
+      E -->|"allowed HTTP request"| A
+    end
+    subgraph OLD["zero-trust — older documented environment"]
+      OF["Frontend — HISTORICAL"] -->|"TCP 80 policy"| OB["Backend — HISTORICAL"]
+      OB -->|"TCP 80 policy"| OD["NGINX database placeholder — HISTORICAL"]
+      I["Istio 1.31.1 / istiod / STRICT mTLS\nREPORTED; manifests and current state unavailable"]
+      I -.-> OB
+    end
+    KY["Kyverno admission injection\nREPORTED; injection policy file absent"] -.-> E
+  end
+  CA["Project workload CA\nINSPECTED backup public cert: RSA-3072"] -->|"classical signatures in backups"| SEC
+  subgraph V["Local Windows Vault demonstration — LIVE VERIFIED"]
+    VA["Vault 2.2.1; AppRole; KV v2\nLIVE health and configuration verified"]
+    VP["PKI: ECDSA P-256 demo root\nLIVE public CA verified; expired 12 Nov"]
+    VA --> VP
+  end
+  VP -.->|"integration to these workloads NOT established"| SEC
+  subgraph H["Independent hybrid experiments — not connected to workload path"]
+    C["OpenSSL client\nHISTORICAL handshakes"] -->|"TLS 1.3 X25519MLKEM768"| HE["Standalone Envoy / OpenSSL endpoints\nHISTORICAL evidence"]
+    PY["Python X25519 + ML-KEM-768 + HKDF\nTESTED NOW OFFLINE; no authenticated transport"]
+  end
+  M["Prometheus / Grafana Compose\nINSPECTED; Prometheus self-metrics only"]

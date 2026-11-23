@@ -1,0 +1,48 @@
+{
+  "checked_at_utc": "2026-11-23T09:01:24.500476+00:00",
+  "address": "http://127.0.0.1:8200/v1/",
+  "scope": "Live read-only, unauthenticated health/public PKI and negative authentication checks. No secret values, credentials, private keys or recovery shares accessed.",
+  "health": {
+    "http_status": 200,
+    "initialized": true,
+    "sealed": false,
+    "standby": false,
+    "version": "2.2.1"
+  },
+  "seal_status": {
+    "http_status": 200,
+    "type": "shamir",
+    "initialized": true,
+    "sealed": false,
+    "t": 2,
+    "n": 3,
+    "progress": 0,
+    "version": "2.2.1",
+    "storage_type": "raft"
+  },
+  "negative_authentication": {
+    "missing_token": {
+      "http_status": 403,
+      "denied_as_expected": true
+    },
+    "invalid_token": {
+      "http_status": 403,
+      "denied_as_expected": true
+    }
+  },
+  "public_ca": {
+    "http_status": 200,
+    "encoding": "DER",
+    "subject": "CN=Local Vault Demonstration CA",
+    "issuer": "CN=Local Vault Demonstration CA",
+    "public_key_type": "ECPublicKey",
+    "key_bits": 256,
+    "curve": "secp256r1",
+    "signature_algorithm": "ecdsa-with-SHA256",
+    "not_before_utc": "2026-11-05T11:40:12+00:00",
+    "not_after_utc": "2026-11-12T11:40:42+00:00",
+    "expired": true,
+    "sha256": "c4ccb788a9d3a9216e6bcd4abfa7a27ad1e55ab4c8b7d4d365aca2fb9b1f6440"
+  },
+  "scope_limit": "Public PKI retrieval and rejected credentials do not demonstrate authorized KV access, CSR issuance, rotation or revocation enforcement."
+}

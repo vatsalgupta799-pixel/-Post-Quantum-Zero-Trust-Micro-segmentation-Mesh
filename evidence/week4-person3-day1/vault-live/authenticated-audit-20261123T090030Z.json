@@ -1,0 +1,98 @@
+{
+  "administrator_authenticated": true,
+  "mounts": {
+    "secret/": {
+      "type": "kv",
+      "options": {
+        "version": "2"
+      }
+    },
+    "pki/": {
+      "type": "pki",
+      "options": {}
+    }
+  },
+  "approle_type": "approle",
+  "roles": {
+    "service-a": {
+      "token_policies": [
+        "service-a"
+      ],
+      "token_ttl": 600,
+      "token_max_ttl": 900,
+      "token_type": "service",
+      "token_no_default_policy": true,
+      "secret_id_ttl": 600,
+      "secret_id_num_uses": 1,
+      "secret_id_bound_cidrs": [
+        "127.0.0.1/32"
+      ],
+      "token_bound_cidrs": [
+        "127.0.0.1"
+      ]
+    },
+    "service-b": {
+      "token_policies": [
+        "service-b"
+      ],
+      "token_ttl": 600,
+      "token_max_ttl": 900,
+      "token_type": "service",
+      "token_no_default_policy": true,
+      "secret_id_ttl": 600,
+      "secret_id_num_uses": 1,
+      "secret_id_bound_cidrs": [
+        "127.0.0.1/32"
+      ],
+      "token_bound_cidrs": [
+        "127.0.0.1"
+      ]
+    },
+    "certificate-manager": {
+      "token_policies": [
+        "certificate-manager"
+      ],
+      "token_ttl": 600,
+      "token_max_ttl": 900,
+      "token_type": "service",
+      "token_no_default_policy": true,
+      "secret_id_ttl": 600,
+      "secret_id_num_uses": 1,
+      "secret_id_bound_cidrs": [
+        "127.0.0.1/32"
+      ],
+      "token_bound_cidrs": [
+        "127.0.0.1"
+      ]
+    }
+  },
+  "policies": {
+    "service-a": {
+      "matches_project_file": true
+    },
+    "service-b": {
+      "matches_project_file": true
+    },
+    "certificate-manager": {
+      "matches_project_file": true
+    }
+  },
+  "pki_role": {
+    "allowed_domains": [
+      "service-a.mesh.test"
+    ],
+    "allow_bare_domains": true,
+    "allow_subdomains": false,
+    "allow_glob_domains": false,
+    "allow_any_name": false,
+    "allow_ip_sans": false,
+    "allow_wildcard_certificates": false,
+    "key_type": "ec",
+    "key_bits": 256,
+    "ttl": 3600,
+    "max_ttl": 86400
+  },
+  "ca_not_before_utc": "2026-11-05T11:40:12+00:00",
+  "ca_not_after_utc": "2026-11-12T11:40:42+00:00",
+  "ca_public_key_type": "ECPublicKey"
+}

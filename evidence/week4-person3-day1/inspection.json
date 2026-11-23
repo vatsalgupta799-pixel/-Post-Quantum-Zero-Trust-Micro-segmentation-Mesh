@@ -1,0 +1,263 @@
+{
+  "assessment_date": "2026-11-23",
+  "timezone": "Asia/Calcutta",
+  "source_commit": "f307cacb5fc0cc8f9577d42f7193c505fb578be4",
+  "scope": "Read-only local inspection; historical evidence is not a current deployment test.",
+  "file_count": 297,
+  "tools_on_path": {
+    "kubectl": null,
+    "docker": null,
+    "openssl": null,
+    "vault": null,
+    "helm": null,
+    "tshark": null
+  },
+  "python": "3.13.12",
+  "cryptography": "50.0.2",
+  "certificates": [
+    {
+      "location": "backend-tls-backup.yaml#ca.crt",
+      "subject": "CN=ZeroTrust-Root-CA,OU=CertificateAuthority,O=ZeroTrustProject,ST=Maharashtra,C=IN",
+      "issuer": "CN=ZeroTrust-Root-CA,OU=CertificateAuthority,O=ZeroTrustProject,ST=Maharashtra,C=IN",
+      "public_key_type": "RSAPublicKey",
+      "key_bits": 3072,
+      "signature_oid": "1.2.840.113549.1.1.11",
+      "signature_name": "sha256WithRSAEncryption",
+      "not_before_utc": "2026-10-30T13:12:44+00:00",
+      "not_after_utc": "2027-10-30T13:12:44+00:00",
+      "expired_on_assessment_date": false,
+      "dns_sans": [],
+      "sha256": "ac50b305d4416cfcc600b8bacf94525d189939fc51f9d6f9282b204dcd84537d",
+      "scope": "Parsed public certificate only; no live peer or full chain validation."
+    },
+    {
+      "location": "backend-tls-backup.yaml#tls.crt",
+      "subject": "CN=backend.zt-integration.svc.cluster.local,OU=Workloads,O=ZeroTrustProject,ST=Maharashtra,C=IN",
+      "issuer": "CN=ZeroTrust-Root-CA,OU=CertificateAuthority,O=ZeroTrustProject,ST=Maharashtra,C=IN",
+      "public_key_type": "RSAPublicKey",
+      "key_bits": 2048,
+      "signature_oid": "1.2.840.113549.1.1.11",
+      "signature_name": "sha256WithRSAEncryption",
+      "not_before_utc": "2026-11-01T05:24:29+00:00",
+      "not_after_utc": "2027-11-01T05:24:29+00:00",
+      "expired_on_assessment_date": false,
+      "dns_sans": [
+        "backend.zt-integration.svc.cluster.local"
+      ],
+      "sha256": "bb0fa806b62c2412133c602c09f0440e355a22fa087aa71c06dc8064cac91bc3",
+      "scope": "Parsed public certificate only; no live peer or full chain validation."
+    },
+    {
+      "location": "ca.crt#certificate-1",
+      "subject": "CN=minikubeCA",
+      "issuer": "CN=minikubeCA",
+      "public_key_type": "RSAPublicKey",
+      "key_bits": 2048,
+      "signature_oid": "1.2.840.113549.1.1.11",
+      "signature_name": "sha256WithRSAEncryption",
+      "not_before_utc": "2026-10-28T10:23:29+00:00",
+      "not_after_utc": "2036-10-26T10:23:29+00:00",
+      "expired_on_assessment_date": false,
+      "dns_sans": [],
+      "sha256": "b7d10e54140558b5a84d340dc0fb2220b7c2441fb05a5c27ac62e3944e0331b5",
+      "scope": "Parsed public certificate only; no live peer or full chain validation."
+    },
+    {
+      "location": "frontend-tls-backup.yaml#ca.crt",
+      "subject": "CN=ZeroTrust-Root-CA,OU=CertificateAuthority,O=ZeroTrustProject,ST=Maharashtra,C=IN",
+      "issuer": "CN=ZeroTrust-Root-CA,OU=CertificateAuthority,O=ZeroTrustProject,ST=Maharashtra,C=IN",
+      "public_key_type": "RSAPublicKey",
+      "key_bits": 3072,
+      "signature_oid": "1.2.840.113549.1.1.11",
+      "signature_name": "sha256WithRSAEncryption",
+      "not_before_utc": "2026-10-30T13:12:44+00:00",
+      "not_after_utc": "2027-10-30T13:12:44+00:00",
+      "expired_on_assessment_date": false,
+      "dns_sans": [],
+      "sha256": "ac50b305d4416cfcc600b8bacf94525d189939fc51f9d6f9282b204dcd84537d",
+      "scope": "Parsed public certificate only; no live peer or full chain validation."
+    },
+    {
+      "location": "frontend-tls-backup.yaml#tls.crt",
+      "subject": "CN=frontend.zt-integration.svc.cluster.local,OU=Workloads,O=ZeroTrustProject,ST=Maharashtra,C=IN",
+      "issuer": "CN=ZeroTrust-Root-CA,OU=CertificateAuthority,O=ZeroTrustProject,ST=Maharashtra,C=IN",
+      "public_key_type": "RSAPublicKey",
+      "key_bits": 2048,
+      "signature_oid": "1.2.840.113549.1.1.11",
+      "signature_name": "sha256WithRSAEncryption",
+      "not_before_utc": "2026-11-01T04:17:54+00:00",
+      "not_after_utc": "2027-11-01T04:17:54+00:00",
+      "expired_on_assessment_date": false,
+      "dns_sans": [
+        "frontend.zt-integration.svc.cluster.local"
+      ],
+      "sha256": "0738b26fced6b8a49abea947326f099493a4fe98943b463c9cc277bad23bb07c",
+      "scope": "Parsed public certificate only; no live peer or full chain validation."
+    },
+    {
+      "location": "proxy-client-ca.crt#certificate-1",
+      "subject": "CN=proxyClientCA",
+      "issuer": "CN=proxyClientCA",
+      "public_key_type": "RSAPublicKey",
+      "key_bits": 2048,
+      "signature_oid": "1.2.840.113549.1.1.11",
+      "signature_name": "sha256WithRSAEncryption",
+      "not_before_utc": "2026-10-28T10:23:29+00:00",
+      "not_after_utc": "2036-10-26T10:23:29+00:00",
+      "expired_on_assessment_date": false,
+      "dns_sans": [],
+      "sha256": "b513b1c6ff884bc57cb1b365baeff93eaf497a70341b03e92fd42eabb892b957",
+      "scope": "Parsed public certificate only; no live peer or full chain validation."
+    },
+    {
+      "location": "results/week2/handshake-loopback-full-20261101/server-cert.pem#certificate-1",
+      "subject": "CN=localhost",
+      "issuer": "CN=localhost",
+      "public_key_type": "RSAPublicKey",
+      "key_bits": 2048,
+      "signature_oid": "1.2.840.113549.1.1.11",
+      "signature_name": "sha256WithRSAEncryption",
+      "not_before_utc": "2026-11-01T11:34:46+00:00",
+      "not_after_utc": "2026-11-02T11:34:46+00:00",
+      "expired_on_assessment_date": true,
+      "dns_sans": [
+        "localhost"
+      ],
+      "sha256": "d0a43474dab85e7044047eaf675f3244ccd4ca6a17703e6c78042e2a07f560f3",
+      "scope": "Parsed public certificate only; no live peer or full chain validation."
+    },
+    {
+      "location": "examples/envoy-tls-test/envoy-test-cert.pem#certificate-1",
+      "subject": "CN=localhost",
+      "issuer": "CN=localhost",
+      "public_key_type": "RSAPublicKey",
+      "key_bits": 2048,
+      "signature_oid": "1.2.840.113549.1.1.11",
+      "signature_name": "sha256WithRSAEncryption",
+      "not_before_utc": "2026-11-01T11:17:33+00:00",
+      "not_after_utc": "2027-11-01T11:17:33+00:00",
+      "expired_on_assessment_date": false,
+      "dns_sans": [
+        "localhost"
+      ],
+      "sha256": "e83728bd42ee4cb04af2aef84016991e4f2a7484b63699650630c1385d32106b",
+      "scope": "Parsed public certificate only; no live peer or full chain validation."
+    }
+  ],
+  "secret_material_presence": [
+    {
+      "file": "backend-tls-backup.yaml",
+      "sensitive_field_names_only": [
+        "tls.key"
+      ],
+      "values": "NOT exported, decoded or printed"
+    },
+    {
+      "file": "frontend-tls-backup.yaml",
+      "sensitive_field_names_only": [
+        "tls.key"
+      ],
+      "values": "NOT exported, decoded or printed"
+    }
+  ],
+  "openssl_local_binary": {
+    "version": "OpenSSL 4.1.0 23 Oct 2026 (Library: OpenSSL 4.1.0 23 Oct 2026)",
+    "exit_code": 0
+  },
+  "vault_local_binary": {
+    "version": "Vault v2.2.1 (0e7c41b936218bd2401ab0f891c93bec10e2e8e4), built 2026-10-22T16:27:49Z",
+    "exit_code": 0
+  },
+  "vault_health": {
+    "available": false,
+    "error_type": "URLError",
+    "reason": "Local unauthenticated read failed; no credentials used and no service started."
+  },
+  "vault_public_ca": {
+    "available": false,
+    "error_type": "URLError",
+    "reason": "Local unauthenticated read failed; no credentials used and no service started."
+  },
+  "tls_csv_checks": [
+    {
+      "file": "results/week2/envoy-tailscale-20261101/raw.csv",
+      "rows": 200,
+      "columns": [
+        "run_id",
+        "timestamp_utc",
+        "block",
+        "mode",
+        "attempt",
+        "success",
+        "handshake_ms",
+        "tls_version",
+        "negotiated_group",
+        "certificate_verified",
+        "session_reused",
+        "error"
+      ],
+      "modes": {
+        "classical": 100,
+        "hybrid": 100
+      },
+      "observed_values": {
+        "success": [
+          "True"
+        ],
+        "tls_version": [
+          "TLSv1.3"
+        ],
+        "negotiated_group": [
+          "X25519MLKEM768",
+          "x25519"
+        ],
+        "certificate_verified": [
+          "True"
+        ],
+        "session_reused": [
+          "False"
+        ]
+      }
+    },
+    {
+      "file": "results/week2/envoy-tailscale-reverse-20261101/raw.csv",
+      "rows": 200,
+      "columns": [
+        "run_id",
+        "timestamp_utc",
+        "block",
+        "mode",
+        "attempt",
+        "success",
+        "handshake_ms",
+        "tls_version",
+        "negotiated_group",
+        "certificate_verified",
+        "session_reused",
+        "error"
+      ],
+      "modes": {
+        "classical": 100,
+        "hybrid": 100
+      },
+      "observed_values": {
+        "success": [
+          "True"
+        ],
+        "tls_version": [
+          "TLSv1.3"
+        ],
+        "negotiated_group": [
+          "X25519MLKEM768",
+          "x25519"
+        ],
+        "certificate_verified": [
+          "True"
+        ],
+        "session_reused": [
+          "False"
+        ]
+      }
+    }
+  ]
+}

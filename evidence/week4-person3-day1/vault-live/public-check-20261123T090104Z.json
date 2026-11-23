@@ -1,0 +1,37 @@
+{
+  "checked_at_utc": "2026-11-23T09:01:04.842984+00:00",
+  "address": "http://127.0.0.1:8200/v1/",
+  "scope": "Live read-only, unauthenticated health/public PKI and negative authentication checks. No secret values, credentials, private keys or recovery shares accessed.",
+  "health": {
+    "http_status": 200,
+    "initialized": true,
+    "sealed": false,
+    "standby": false,
+    "version": "2.2.1"
+  },
+  "seal_status": {
+    "http_status": 200,
+    "type": "shamir",
+    "initialized": true,
+    "sealed": false,
+    "t": 2,
+    "n": 3,
+    "progress": 0,
+    "version": "2.2.1",
+    "storage_type": "raft"
+  },
+  "negative_authentication": {
+    "missing_token": {
+      "http_status": 403,
+      "denied_as_expected": true
+    },
+    "invalid_token": {
+      "http_status": 403,
+      "denied_as_expected": true
+    }
+  },
+  "public_ca": {
+    "http_status": 200
+  },
+  "error_type": "ValueError"
+}

@@ -1,0 +1,25 @@
+{
+  "checked_at_utc": "2026-11-23T09:01:24.500476+00:00",
+  "status": "Live read-only verification completed; expired CA requires remediation.",
+  "checks": {
+    "api_healthy_unsealed_active": true,
+    "raft_shamir_2_of_3": true,
+    "administrator_authenticated": true,
+    "kv_v2": true,
+    "pki_mount": true,
+    "approle_mount": true,
+    "negative_authentication": true,
+    "all_acl_files_match": true,
+    "ca_valid_now": false,
+    "role_service-a": true,
+    "role_service-b": true,
+    "role_certificate-manager": true,
+    "pki_role_restrictions": true,
+    "ca_metadata_agrees_between_audit_and_public_read": true
+  },
+  "checks_passed": 13,
+  "checks_failed": 1,
+  "failure": "Current default CA expired on 2026-11-12T11:40:42Z",
+  "credentials": "Entered privately by operator; not saved or exposed",
+  "scope": "Configuration checks, not a repeat of historical issuance/revocation integration tests."
+}

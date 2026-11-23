@@ -1,0 +1,23 @@
+{
+  "assessment_date": "2026-11-23",
+  "original_project_files_checked": 297,
+  "original_files_modified_or_missing": [],
+  "relative_links_broken": [],
+  "inventory_component_rows": 23,
+  "mermaid_matches_report": true,
+  "mermaid_subgraphs_balanced": true,
+  "mermaid_review": "Topology reviewed against manifests and evidence labels; no graphical renderer/parser was available.",
+  "offline_tests": {
+    "selected_crypto_pytest_passed": 43,
+    "key_rotation_unittest_passed": 16,
+    "initial_combined_collection": "Failed on top-level Key_rotation import; documented and rerun using existing supported working-directory layout."
+  },
+  "live_kubernetes_verified": false,
+  "live_vault_verified": true,
+  "day1_status": "COMPLETE WITH DOCUMENTED LIMITATIONS",
+  "days2_and3": "Not performed",
+  "secret_values_in_new_artifacts": "No private-key/token/Secret-ID values copied; public certificate metadata only.",
+  "live_vault_scope": "Health, seal/storage, administrator-authenticated mount/AppRole/ACL/PKI-role audit, independent public CA and rejected-token checks; default CA expired.",
+  "live_vault_evidence": "vault-live/README.md",
+  "vault_followup_state": "Existing server started; operator unsealed privately; no initialization/configuration/secret/certificate changes; ordinary server internal state may update."
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "file": "results/week4-hndl/classical-x25519.pcap",
+    "bytes": 3617,
+    "packet_count": 14,
+    "hellos": [
+      {
+        "message": "ClientHello",
+        "key_shares": [
+          {
+            "group_hex": "0x1d",
+            "key_exchange_bytes": 32
+          }
+        ]
+      },
+      {
+        "message": "ServerHello",
+        "key_shares": [
+          {
+            "group_hex": "0x1d",
+            "key_exchange_bytes": 32
+          }
+        ],
+        "selected_version": "0304"
+      }
+    ],
+    "scope": "Offline cleartext Hello parsing only; no decryption, certificate authentication or current network test."
+  },
+  {
+    "file": "results/week4-hndl/hybrid-x25519-mlkem.pcap",
+    "bytes": 5883,
+    "packet_count": 14,
+    "hellos": [
+      {
+        "message": "ClientHello",
+        "key_shares": [
+          {
+            "group_hex": "0x11ec",
+            "key_exchange_bytes": 1216
+          }
+        ]
+      },
+      {
+        "message": "ServerHello",
+        "key_shares": [
+          {
+            "group_hex": "0x11ec",
+            "key_exchange_bytes": 1120
+          }
+        ],
+        "selected_version": "0304"
+      }
+    ],
+    "scope": "Offline cleartext Hello parsing only; no decryption, certificate authentication or current network test."
+  }
+]
