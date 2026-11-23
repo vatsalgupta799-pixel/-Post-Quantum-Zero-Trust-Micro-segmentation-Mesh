@@ -1,0 +1,24 @@
+flowchart TD
+    D["Discovery - reconcile environments"] --> I["Cryptographic inventory and runtime evidence"]
+    I --> R["Risk prioritization - lifetime and exposure"]
+    R --> G1{"Pilot prerequisites satisfied?"}
+    G1 -->|No| F["Resolve identities, credentials, builds and owners"]
+    F --> I
+    G1 -->|Yes| P["Isolated pilot - baseline then hybrid mTLS"]
+    P --> G2{"Negotiation and pilot tests pass?"}
+    G2 -->|No| RB["Stop rollout - restore approved safe profile or isolate"]
+    RB --> P
+    G2 -->|Yes| H["Hybrid migration - OPA and segmentation gates"]
+    H --> G3{"Each cohort passes security and performance?"}
+    G3 -->|No| RB
+    G3 -->|Yes| S["Signature migration - PKI, clients and lifecycle"]
+    S --> G4{"Signature and trust rollout qualified?"}
+    G4 -->|No| HOLD["Hold signature rollout - retain approved hybrid transport and authentication"]
+    HOLD --> S
+    G4 -->|Yes| V["End-to-end validation and recovery drill"]
+    V --> G5{"Coverage complete and retirement safe?"}
+    G5 -->|No| H
+    G5 -->|Yes| C["Retire obsolete classical-only dependencies"]
+    C --> M["Monitor and refresh inventory"]
+    M --> I
+    RB -.-> RULE["Sensitive protected flows never silently downgrade"]

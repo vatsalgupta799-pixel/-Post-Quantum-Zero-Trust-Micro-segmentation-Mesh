@@ -1,0 +1,165 @@
+{
+  "checked_at_utc": "2026-11-23T10:14:06.673274+00:00",
+  "scope": "Day 2 documentation validation only; no live migration tests run",
+  "status": "passed",
+  "checks": {
+    "all_14_required_sections": true,
+    "all_5_phases": true,
+    "12_test_designs_unique": true,
+    "tests_explicitly_planned_not_run": true,
+    "all_23_inventory_ids_mapped": true,
+    "local_links_resolve": true,
+    "primary_source_register_covers_external_links": true,
+    "markdown_tables_consistent": true,
+    "standalone_mermaid_matches_embedded": true,
+    "mermaid_parser_and_renderer_passed": true,
+    "rendered_diagram_visually_reviewed": true,
+    "baseline_project_files_unchanged": true
+  },
+  "required_sections": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "phases": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "test_design_ids": [
+    "T01",
+    "T02",
+    "T03",
+    "T04",
+    "T05",
+    "T06",
+    "T07",
+    "T08",
+    "T09",
+    "T10",
+    "T11",
+    "T12"
+  ],
+  "inventory_ids_mapped": [
+    "C01",
+    "C02",
+    "C03",
+    "C04",
+    "C05",
+    "C06",
+    "C07",
+    "C08",
+    "C09",
+    "C10",
+    "C11",
+    "C12",
+    "C13",
+    "C14",
+    "C15",
+    "C16",
+    "C17",
+    "C18",
+    "C19",
+    "C20",
+    "C21",
+    "C22",
+    "C23"
+  ],
+  "local_links_checked": 13,
+  "broken_local_links": [],
+  "external_sources_registered": 13,
+  "unregistered_external_links": [],
+  "markdown_tables": [
+    {
+      "rows": 9,
+      "columns": 3,
+      "consistent": true
+    },
+    {
+      "rows": 9,
+      "columns": 2,
+      "consistent": true
+    },
+    {
+      "rows": 5,
+      "columns": 3,
+      "consistent": true
+    },
+    {
+      "rows": 8,
+      "columns": 3,
+      "consistent": true
+    },
+    {
+      "rows": 15,
+      "columns": 6,
+      "consistent": true
+    },
+    {
+      "rows": 11,
+      "columns": 2,
+      "consistent": true
+    },
+    {
+      "rows": 14,
+      "columns": 3,
+      "consistent": true
+    },
+    {
+      "rows": 14,
+      "columns": 3,
+      "consistent": true
+    },
+    {
+      "rows": 7,
+      "columns": 3,
+      "consistent": true
+    },
+    {
+      "rows": 9,
+      "columns": 3,
+      "consistent": true
+    }
+  ],
+  "mermaid": {
+    "status": "passed",
+    "parser": "Mermaid",
+    "version": "11.17.2",
+    "renderer": "headless Microsoft Edge via Playwright",
+    "diagram_type": "flowchart-v2",
+    "nodes": 18,
+    "edges": 23,
+    "view_box": {
+      "width": 1123.3359375,
+      "height": 2899
+    },
+    "svg": "docs/enterprise_pqc_migration.svg",
+    "visual_review": "passed",
+    "visual_review_notes": "Rendered diagram inspected: all 18 nodes and 23 edges visible, labels readable, decision and rollback branches present, no clipped labels."
+  },
+  "preservation": {
+    "baseline_files_checked": 311,
+    "changed_existing_files": [],
+    "missing_existing_files": [],
+    "scope_note": "Baseline excludes temporary tooling/caches, .git, and local Vault data/recovery/binaries. No deployment, Vault configuration/state, or certificate mutation was performed for Day 2."
+  },
+  "artifact_sha256": {
+    "docs/enterprise_pqc_migration_strategy.md": "960f1514d16d6cc0ed7bb19ad8d71753fba86e7abc0e8fcd59bbfddb8548f214",
+    "docs/enterprise_pqc_migration.mmd": "8f943028a83753d7de82a79f9e623237c4fc91f1b911336d4692b77a4ae0c678",
+    "evidence/week4-person3-day2/source-review.json": "f448b5c593aa85eb78b28377a74d7569cce53592c09dc487e07e3af2972b0370",
+    "docs/enterprise_pqc_migration.svg": "1ff7cac8dc05dc2149793814c90248c76420309fb0da5a8931732f4f9d70941d"
+  }
+}
